@@ -1,0 +1,10 @@
+package com.landlock.restriction;
+
+public enum RestrictionType {
+    COURT_INJUNCTION,
+    COURT_TRANSFER_RESTRICTION,
+    ADMINISTRATIVE_RESTRICTION,
+    MORTGAGE_LIEN,
+    DISPUTE_REVIEW_FLAG,
+    OTHER_VERIFIED_ENCUMBRANCE
+}

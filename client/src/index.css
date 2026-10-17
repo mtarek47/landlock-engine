@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    background-color: #F5F5F0;
+    color: #1a1a1a;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Hind Siliguri', sans-serif;
+    font-weight: 600;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-govt-green text-white px-4 py-2 rounded font-medium hover:bg-govt-green-dark transition-colors focus:outline-none focus:ring-2 focus:ring-govt-green focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-govt-green border border-govt-green px-4 py-2 rounded font-medium hover:bg-green-50 transition-colors focus:outline-none focus:ring-2 focus:ring-govt-green focus:ring-offset-2;
+  }
+
+  .btn-danger {
+    @apply bg-govt-red text-white px-4 py-2 rounded font-medium hover:bg-red-700 transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-lg border border-govt-border shadow-sm p-6;
+  }
+
+  .input-field {
+    @apply w-full border border-govt-border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-govt-green focus:border-transparent bg-white;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  .govt-header {
+    @apply bg-govt-green text-white;
+  }
+
+  /* Decision status colors */
+  .status-clear {
+    @apply bg-green-100 text-green-800 border border-green-300;
+  }
+  .status-blocked {
+    @apply bg-red-100 text-red-800 border border-red-300;
+  }
+  .status-review {
+    @apply bg-yellow-100 text-yellow-800 border border-yellow-300;
+  }
+  .status-mortgage {
+    @apply bg-orange-100 text-orange-800 border border-orange-300;
+  }
+  .status-unavailable {
+    @apply bg-gray-100 text-gray-700 border border-gray-300;
+  }
+}

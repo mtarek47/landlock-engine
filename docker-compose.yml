@@ -1,0 +1,45 @@
+services:
+  database:
+    image: postgres:15
+    container_name: landlock-db
+    environment:
+      POSTGRES_DB: landlockdb
+      POSTGRES_USER: landlock
+      POSTGRES_PASSWORD: landlock
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U landlock -d landlockdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: landlock-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/landlockdb
+      SPRING_DATASOURCE_USERNAME: landlock
+      SPRING_DATASOURCE_PASSWORD: landlock
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: landlock-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

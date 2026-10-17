@@ -1,0 +1,22 @@
+{
+  "name": "landlock-engine",
+  "version": "1.0.0",
+  "description": "LandLock Engine — Automated Injunction & Title Encumbrance Registry (Bangladesh Govt Prototype)",
+  "type": "module",
+  "scripts": {
+    "start": "node run.js",
+    "dev": "node run.js",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down"
+  },
+  "keywords": [
+    "govtech",
+    "legaltech",
+    "land-registry",
+    "bangladesh",
+    "spring-boot",
+    "react"
+  ],
+  "author": "LandLock Team",
+  "license": "MIT"
+}

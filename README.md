@@ -52,7 +52,7 @@ flowchart LR
 ```
 
 <p align="center">
-  <img src="docs/architecture-infographic.png" width="100%" alt="LandLock Engine Architecture & Infographic" />
+  <img src="client/public/images/ss1.jpeg" width="100%" alt="LandLock Engine Architecture & Infographic" />
 </p>
 
 ---

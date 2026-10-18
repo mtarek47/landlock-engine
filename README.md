@@ -51,6 +51,10 @@ flowchart LR
     Engine -->|নাগরিক স্বত্ব যাচাই ও কিউআর সনদ| Citizen["সাধারণ নাগরিক ও ক্রেতা"]
 ```
 
+<p align="center">
+  <img src="docs/architecture-infographic.png" width="100%" alt="LandLock Engine Architecture & Infographic" />
+</p>
+
 ---
 
 ## ২. পটভূমি ও সমাধানের আবশ্যকতা (Problem Statement)

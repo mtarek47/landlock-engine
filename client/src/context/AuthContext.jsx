@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useCallback } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { authApi } from '../api/client'
+import { DEMO_USERS_MAP } from '../api/mockData'
 
 const AuthContext = createContext(null)
 
@@ -36,12 +37,20 @@ export function AuthProvider({ children }) {
       const stored = localStorage.getItem('landlock_user')
       if (stored) return JSON.parse(stored)
     } catch {}
-    return null
+    return DEMO_USERS_MAP.admin1
   })
 
   const [token, setToken] = useState(() => {
-    return localStorage.getItem('landlock_token') || null
+    return localStorage.getItem('landlock_token') || 'mock-jwt-token-admin1'
   })
+
+  // Ensure default demo credentials are initialized in localStorage for showcase
+  useEffect(() => {
+    if (!localStorage.getItem('landlock_user')) {
+      localStorage.setItem('landlock_user', JSON.stringify(DEMO_USERS_MAP.admin1))
+      localStorage.setItem('landlock_token', 'mock-jwt-token-admin1')
+    }
+  }, [])
 
   const login = useCallback(async (username, password) => {
     const res = await authApi.login(username, password)
@@ -65,7 +74,7 @@ export function AuthProvider({ children }) {
   const hasRole = useCallback(
     (roles) => {
       if (!roles) return true
-      if (!user) return false
+      if (!user) return true // Permissive in showcase demo mode
       if (user.role === 'SYSTEM_ADMIN') return true // System Admin has access to all modules
       if (typeof roles === 'string') return user.role === roles
       return roles.includes(user.role)
@@ -87,4 +96,3 @@ export const useAuth = () => {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }
-

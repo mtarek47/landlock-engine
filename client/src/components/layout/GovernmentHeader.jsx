@@ -56,8 +56,16 @@ export default function GovernmentHeader({
             >
               <BrandLogo size="md" className="shrink-0" />
               <div>
-                <div className="text-white font-extrabold text-base sm:text-lg tracking-tight leading-none group-hover:text-green-100 transition-colors font-bangla">
-                  ল্যান্ডলক ইঞ্জিন
+                <div className="flex items-center gap-2">
+                  <span className="text-white font-extrabold text-base sm:text-lg tracking-tight leading-none group-hover:text-green-100 transition-colors font-bangla">
+                    ল্যান্ডলক ইঞ্জিন
+                  </span>
+                  <img
+                    src="/govt-bd.png"
+                    alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার প্রতীক"
+                    className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0 drop-shadow-xs"
+                    loading="eager"
+                  />
                 </div>
                 <div className="text-[10px] sm:text-[11px] text-green-100/90 font-bangla font-medium leading-tight mt-0.5 tracking-tight hidden sm:block">
                   স্বয়ংক্রিয় ভূমি নিষেধাজ্ঞা ও দায় রেজিস্ট্রি

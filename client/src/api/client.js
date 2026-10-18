@@ -73,7 +73,7 @@ function getCurrentUser() {
     const raw = localStorage.getItem(STORAGE_KEYS.USER)
     if (raw) return JSON.parse(raw)
   } catch {}
-  return null
+  return DEMO_USERS_MAP.admin1
 }
 
 // Add audit log helper

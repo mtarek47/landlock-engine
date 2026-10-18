@@ -77,6 +77,62 @@ export default function ParcelSearchPage() {
           </button>
         </div>
 
+        {/* Demo Documentation & Seeded Parcels Overview */}
+        <div className="bg-white border border-govt-border rounded-lg p-4 sm:p-5 shadow-sm space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-2.5">
+            <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
+              <MapPin size={15} />
+              <span>ডেমো পার্সেল ডেটাবেজ ও ফিল্টার নির্দেশিকা (Demo Documentation)</span>
+            </div>
+            <span className="text-[11px] text-gray-500">৩টি সমন্বিত পাইলট পার্সেল সংরক্ষিত</span>
+          </div>
+
+          <div className="text-xs text-gray-700 leading-relaxed">
+            ল্যান্ডলক ইঞ্জিন একক দাগ নম্বরের পরিবর্তে সমন্বিত কম্পোজিট আইডেন্টিফায়ার (বিভাগ, জেলা, উপজেলা, মৌজা, খতিয়ান টাইপ ও দাগ) ব্যবহার করে যাতে কোনো স্বত্বের অস্পষ্টতা না থাকে।
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <button
+              type="button"
+              onClick={() => { reset({ mouza: 'DHANMONDI-01', dag: '5001', khatian: '101' }); loadParcels({ mouza: 'DHANMONDI-01', dag: '5001', khatian: '101' }); }}
+              className="p-3 bg-red-50/70 hover:bg-red-100/70 rounded border border-red-200 text-left transition-all cursor-pointer"
+            >
+              <div className="font-bold text-red-800 text-xs flex items-center justify-between">
+                <span>ধানমন্ডি (দাগ ৫০০১)</span>
+                <span className="text-[10px] bg-red-200 text-red-900 px-1.5 py-0.5 rounded">অবরুদ্ধ</span>
+              </div>
+              <div className="text-[11px] text-gray-600 mt-1">খতিয়ান: ১০১ (RS) | ১০.৫০ শতক</div>
+              <div className="text-[10px] text-red-700 mt-0.5 font-medium">আদালতি নিষেধাজ্ঞা + সক্রিয় ব্যাংক বন্ধক</div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { reset({ mouza: 'GULSHAN-02', dag: '6002', khatian: '202' }); loadParcels({ mouza: 'GULSHAN-02', dag: '6002', khatian: '202' }); }}
+              className="p-3 bg-amber-50/70 hover:bg-amber-100/70 rounded border border-amber-200 text-left transition-all cursor-pointer"
+            >
+              <div className="font-bold text-amber-800 text-xs flex items-center justify-between">
+                <span>গুলশান (দাগ ৬০০২)</span>
+                <span className="text-[10px] bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded">মামলাধীন</span>
+              </div>
+              <div className="text-[11px] text-gray-600 mt-1">খতিয়ান: ২০২ (RS) | ১৫.০০ শতক</div>
+              <div className="text-[10px] text-amber-700 mt-0.5 font-medium">বণ্টন বিরোধের মামলা প্রক্রিয়াধীন</div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => { reset({ mouza: 'MIRPUR-03', dag: '7003', khatian: '303' }); loadParcels({ mouza: 'MIRPUR-03', dag: '7003', khatian: '303' }); }}
+              className="p-3 bg-green-50/70 hover:bg-green-100/70 rounded border border-green-200 text-left transition-all cursor-pointer"
+            >
+              <div className="font-bold text-green-800 text-xs flex items-center justify-between">
+                <span>মিরপুর (দাগ ৭০০৩)</span>
+                <span className="text-[10px] bg-green-200 text-green-900 px-1.5 py-0.5 rounded">পরিষ্কার</span>
+              </div>
+              <div className="text-[11px] text-gray-600 mt-1">খতিয়ান: ৩০৩ (RS) | ৮.২৫ শতক</div>
+              <div className="text-[10px] text-green-700 mt-0.5 font-medium">দায়মুক্ত (সাবেক বন্ধক অবমুক্ত)</div>
+            </button>
+          </div>
+        </div>
+
         {/* Search Filter Card */}
         <div className="card shadow-sm">
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

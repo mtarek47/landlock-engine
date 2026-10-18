@@ -156,22 +156,59 @@ export default function CitizenSearchPage() {
             </p>
           </div>
 
-          {/* Quick Demo Fill Buttons */}
-          <div className="mb-6 bg-white border border-govt-border p-4 rounded-lg shadow-sm">
-            <div className="text-xs font-semibold text-gray-500 mb-2">
-              দ্রুত পরীক্ষার জন্য ডেমো খতিয়ান নির্বাচন করুন:
+          {/* Quick Demo Fill Buttons & Documentation */}
+          <div className="mb-6 bg-white border border-govt-border p-4 sm:p-5 rounded-lg shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+              <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
+                <HelpCircle size={15} />
+                <span>ডেমো টেস্টিং নির্দেশিকা ও ডক্যুমেন্টেশন (Demo Documentation)</span>
+              </div>
+              <span className="text-[11px] text-gray-500">এক ক্লিকে স্বয়ংক্রিয় অনুসন্ধান চালাতে নিচে ক্লিক করুন</span>
             </div>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="flex flex-wrap gap-2 mb-4">
               {DEMO_PARCELS.map((item) => (
                 <button
                   key={item.dag}
                   type="button"
                   onClick={() => handleDemoSelect(item)}
-                  className="text-xs px-3 py-1.5 bg-gray-50 hover:bg-green-50 hover:text-govt-green text-gray-700 font-medium rounded border border-govt-border hover:border-govt-green transition-colors"
+                  className="text-xs px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-govt-green font-semibold rounded-md border border-emerald-300 hover:border-govt-green transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
                 >
-                  ⚡ {item.label}
+                  <span>⚡ {item.label}</span>
                 </button>
               ))}
+            </div>
+
+            {/* Explanatory documentation accordion / guide */}
+            <div className="bg-gray-50 border border-gray-200 rounded p-3.5 text-xs text-gray-700 space-y-2">
+              <div className="font-bold text-gray-900 border-b border-gray-200 pb-1.5 flex items-center justify-between">
+                <span>📖 ডেমো পার্সেলসমূহের আইনি প্রেক্ষাপট (Seeded Data Context):</span>
+                <span className="text-[11px] text-govt-green font-normal">৩টি টেস্ট কেস</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                <div className="bg-white p-2.5 rounded border border-red-200">
+                  <div className="font-bold text-red-700 text-xs mb-1">১. ধানমন্ডি (দাগ ৫০০১)</div>
+                  <div className="text-[11px] text-gray-600 leading-relaxed">
+                    <strong>আইনি অবস্থা:</strong> দেওয়ানি আদালত কর্তৃক চিরস্থায়ী নিষেধাজ্ঞা (OS-2024-00123) বলবৎ এবং ব্যাংকে ১০.৫ শতাংশ জমির বন্ধক রয়েছে। সাধারণ নাগরিকদের জন্য লাল সতর্কতা প্রদর্শন করে।
+                  </div>
+                </div>
+                <div className="bg-white p-2.5 rounded border border-amber-200">
+                  <div className="font-bold text-amber-700 text-xs mb-1">২. গুলশান (দাগ ৬০০২)</div>
+                  <div className="text-[11px] text-gray-600 leading-relaxed">
+                    <strong>আইনি অবস্থা:</strong> সীমানা ও বণ্টন বিরোধের মামলা (MS-2024-00456) প্রক্রিয়াধীন। তবে চূড়ান্ত নিষেধাজ্ঞা অনুমোদিত না হওয়ায় কোনো আইনি বাধা কার্যকর হয়নি।
+                  </div>
+                </div>
+                <div className="bg-white p-2.5 rounded border border-green-200">
+                  <div className="font-bold text-green-700 text-xs mb-1">৩. মিরপুর (দাগ ৭০০৩)</div>
+                  <div className="text-[11px] text-gray-600 leading-relaxed">
+                    <strong>আইনি অবস্থা:</strong> সম্পূর্ণ ঝুঁকিমুক্ত। পূর্বের একটি বাণিজ্যিক ব্যাংকের বন্ধক ২০২৩ সালে বৈধভাবে অবমুক্ত (REL-DB-2023-045) করা হয়েছে।
+                  </div>
+                </div>
+              </div>
+              <div className="text-[11px] text-gray-500 pt-1 flex items-center gap-1">
+                <Info size={13} className="shrink-0 text-govt-green" />
+                <span><strong>নাগরিক গোপনীয়তা সুরক্ষা:</strong> সাধারণ নাগরিকদের কাছে মামলার সংবেদনশীল নথি বা ব্যাংক একাউন্ট নম্বর প্রকাশ করা হয় না; কেবল বৈধ আইনি ঝুঁকি নির্দেশক প্রদর্শিত হয়।</span>
+              </div>
             </div>
           </div>
 

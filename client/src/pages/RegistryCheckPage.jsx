@@ -127,20 +127,63 @@ export default function RegistryCheckPage() {
 
         {/* Presets Bar */}
         <div className="bg-white border border-govt-border rounded-lg p-3 shadow-sm">
-          <div className="text-xs font-semibold text-gray-500 mb-2">
-            পরীক্ষার জন্য দ্রুত প্রিসেট নির্বাচন করুন:
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
+              <Info size={15} />
+              <span>রেজিস্ট্রি গেটকিপার সিমুলেশন ও ডেমো ডক্যুমেন্টেশন (Demo Documentation)</span>
+            </div>
+            <span className="text-[11px] text-gray-500">পরীক্ষার জন্য দ্রুত প্রিসেট নির্বাচন করুন:</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+
+          <div className="flex flex-wrap gap-2 mb-4">
             {DEMO_PRESETS.map((p, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => applyPreset(p)}
-                className="text-xs px-3 py-1.5 bg-gray-50 hover:bg-green-50 hover:text-govt-green text-gray-700 font-medium rounded border border-govt-border hover:border-govt-green transition-colors"
+                className="text-xs px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-govt-green font-semibold rounded-md border border-emerald-300 hover:border-govt-green transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
               >
-                🔍 {p.label}
+                <span>🔍 {p.label}</span>
               </button>
             ))}
+          </div>
+
+          {/* Decision Engine Documentation Accordion / Matrix */}
+          <div className="bg-gray-50 border border-gray-200 rounded p-4 text-xs text-gray-700 space-y-3">
+            <div className="font-bold text-gray-900 border-b border-gray-200 pb-2 flex items-center justify-between">
+              <span>🧠 গেটকিপার সিদ্ধান্ত অ্যালগরিদম (Decision Logic Hierarchy):</span>
+              <span className="text-[11px] text-govt-green font-semibold">৫টি সিদ্ধান্ত স্তর</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              <div className="bg-white p-2.5 rounded border-l-4 border-l-red-600 border border-gray-200">
+                <div className="font-bold text-red-700 text-xs">BLOCKED_BY_VALID_ORDER</div>
+                <div className="text-[11px] text-gray-600 mt-1">
+                  আদালতের কোনো অনুমোদিত বৈধ আদেশ যদি প্রস্তাবিত লেনদেন নিষিদ্ধ করে (যেমন: ধানমন্ডি পার্সেল ১ এ বিক্রয়)।
+                </div>
+              </div>
+              <div className="bg-white p-2.5 rounded border-l-4 border-l-amber-500 border border-gray-200">
+                <div className="font-bold text-amber-700 text-xs">MORTGAGE_REQUIRES_RELEASE</div>
+                <div className="text-[11px] text-gray-600 mt-1">
+                  জমিতে বাণিজ্যিক ব্যাংকের সক্রিয় বন্ধক বলবৎ থাকলে এবং অনুমোদিত অনাপত্তি (NOC) বা দায়মুক্তি না থাকলে।
+                </div>
+              </div>
+              <div className="bg-white p-2.5 rounded border-l-4 border-l-yellow-500 border border-gray-200">
+                <div className="font-bold text-yellow-700 text-xs">REVIEW_REQUIRED</div>
+                <div className="text-[11px] text-gray-600 mt-1">
+                  পার্সেল শনাক্তকরণে গরমিল, অসঙ্গতি বা তথ্যের অস্পষ্টতা থাকলে কোনো বিভ্রান্তিকর ছাড়পত্র না দিয়ে রিভিউ পাঠানো হয়।
+                </div>
+              </div>
+              <div className="bg-white p-2.5 rounded border-l-4 border-l-emerald-600 border border-gray-200">
+                <div className="font-bold text-emerald-700 text-xs">CLEAR</div>
+                <div className="text-[11px] text-gray-600 mt-1">
+                  কোনো নিষেধাজ্ঞা বা অপরিশোধিত বন্ধক না থাকলে লেনদেন নিরাপদ ঘোষণা করা হয় (যেমন: মিরপুর পার্সেল ৩)।
+                </div>
+              </div>
+            </div>
+            <div className="text-[11px] text-gray-500 pt-1 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-1">
+              <span>🔑 <strong>আইডেমপোটেন্সি কি (Idempotency Key):</strong> <code className="font-mono bg-white px-1 py-0.5 rounded border">requestId</code> নিশ্চিত করে যে একই অনুরোধের জন্য একাধিকবার অডিট ও লেনদেন রিকোয়েস্ট তৈরি হবে না।</span>
+              <span className="text-govt-green font-medium">নিরাপত্তা: সাব-রেজিস্ট্রার কর্তৃক অনুমোদিত এপিআই কল</span>
+            </div>
           </div>
         </div>
 

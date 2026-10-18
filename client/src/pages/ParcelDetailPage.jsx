@@ -201,6 +201,43 @@ export default function ParcelDetailPage() {
           </div>
         </div>
 
+        {/* Demo Documentation & Gatekeeper Action */}
+        <div className="bg-emerald-50/60 border border-emerald-300 rounded-lg p-4 sm:p-5 shadow-xs space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-emerald-200 pb-2.5">
+            <div>
+              <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
+                <Shield size={15} />
+                <span>পার্সেল আইনি বিশ্লেষণ ও ডেমো নির্দেশিকা (Parcel Legal Analysis)</span>
+              </div>
+              <p className="text-xs text-gray-600 mt-0.5">
+                এই পার্সেলটির আইনি স্থিতি ও গেটকিপার সিমুলেশন ফলাফল
+              </p>
+            </div>
+            <Link
+              to={`/registry?parcelId=${parcel.id}`}
+              className="btn-primary text-xs px-4 py-2 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+            >
+              <ClipboardCheck size={16} />
+              <span>এই পার্সেলে গেটকিপার যাচাই করুন</span>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-gray-700">
+            <div className="bg-white p-3 rounded border border-gray-200">
+              <span className="font-bold text-gray-800 block mb-1">⚖️ আদালতের নিষেধাজ্ঞা নিয়ম:</span>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                মামলা দায়ের হলেই কোনো জমি স্বয়ংক্রিয়ভাবে হস্তান্তর নিষিদ্ধ হয় না। বিজ্ঞ আদালত কর্তৃক সুনির্দিষ্ট আদেশে বিক্রয় বা হস্তান্তর স্থগিতাদেশ অনুমোদিত হলে তবেই গেটকিপার এপিআই লেনদেন প্রতিহত করবে।
+              </p>
+            </div>
+            <div className="bg-white p-3 rounded border border-gray-200">
+              <span className="font-bold text-gray-800 block mb-1">🏦 ব্যাংক বন্ধকী লিয়েন নিয়ম:</span>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                জমিতে সক্রিয় বন্ধক থাকলে তা হস্তান্তরের জন্য ব্যাংক হতে অনুমোদিত দায়মুক্তি সনদ (NOC/Release Deed) প্রয়োজন। অন্যথায় সিস্টেম MORTGAGE_REQUIRES_RELEASE ফেরত দেবে।
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Restrictions Section */}
         <div className="card shadow-sm">
           <div className="flex items-center justify-between pb-3 border-b border-govt-border mb-4">

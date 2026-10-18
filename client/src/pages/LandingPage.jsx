@@ -114,6 +114,120 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Demo Documentation & Walkthrough Guide */}
+        <section className="bg-emerald-50/60 border-b border-govt-border py-14 px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-10">
+              <span className="bg-govt-green text-white text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wide">
+                ডেমো নির্দেশিকা ও ডক্যুমেন্টেশন
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-govt-green mt-3">
+                কীভাবে প্রোটোটাইপটি পরীক্ষা করবেন (Demo Walkthrough)
+              </h2>
+              <p className="text-gray-600 text-sm max-w-2xl mx-auto mt-2">
+                সিস্টেমের পূর্ণাঙ্গ সক্ষমতা ও আইনগত ব্লক যাচাইকরণের জন্য নিচের ৪টি ধারাবাহিক ধাপ অনুসরণ করুন
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+              {/* Card 1 */}
+              <div className="bg-white p-5 rounded-lg border-2 border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-govt-green text-white font-bold flex items-center justify-center text-sm">
+                    ১
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-base">নাগরিক উন্মুক্ত অনুসন্ধান (Citizen Search)</h3>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                  কোনো লগইন ছাড়াই সাধারণ নাগরিক হিসেবে জমির ঝুঁকি দেখুন। প্রাক-নির্ধারিত ডেমো বোতামে ক্লিক করে ধানমন্ডি (দাগ ৫০০১) অনুসন্ধান করলে নিষেধাজ্ঞা এবং মিরপুর (দাগ ৭০০৩) অনুসন্ধান করলে ক্লিয়ার স্ট্যাটাস দেখতে পাবেন।
+                </p>
+                <div className="bg-gray-50 p-2.5 rounded border border-gray-200 text-[11px] text-gray-700 font-mono">
+                  টেস্ট ডেটা: মৌজা: <span className="font-bold text-govt-green">DHANMONDI-01</span> | দাগ: <span className="font-bold text-govt-green">5001</span> (অবরুদ্ধ)
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="bg-white p-5 rounded-lg border-2 border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-govt-green text-white font-bold flex items-center justify-center text-sm">
+                    ২
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-base">আদালত আদেশ ও ৪-আই নীতি (Four-Eyes Approval)</h3>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                  <code className="text-govt-green font-semibold">court_officer1</code> হিসেবে মামলা তৈরি ও আদেশ দাখিল করুন। এরপর <code className="text-govt-green font-semibold">order_approver1</code> হিসেবে লগইন করে আদেশ অনুমোদন করুন। তৈরিকারী কর্মকর্তা নিজের আদেশ নিজে অনুমোদন করতে পারবেন না।
+                </p>
+                <div className="bg-gray-50 p-2.5 rounded border border-gray-200 text-[11px] text-gray-700 font-mono">
+                  ডেমো মামলা: <span className="font-bold">OS-2024-00123</span> (দেওয়ানি চিরস্থায়ী নিষেধাজ্ঞা)
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="bg-white p-5 rounded-lg border-2 border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-govt-green text-white font-bold flex items-center justify-center text-sm">
+                    ৩
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-base">সাব-রেজিস্ট্রি গেটকিপার (Registry Gatekeeper)</h3>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                  <code className="text-govt-green font-semibold">registry_officer1</code> হিসেবে লগইন করে রেজিস্ট্রেশন যাচাই করুন। ধানমন্ডি দাগ ৫০০১ এ বিক্রয় (SALE) দলিলের জন্য গেটকিপার সরাসরি <strong className="text-red-700">BLOCKED_BY_VALID_ORDER</strong> ফলাফল দেবে।
+                </p>
+                <div className="bg-gray-50 p-2.5 rounded border border-gray-200 text-[11px] text-gray-700 font-mono">
+                  সিদ্ধান্ত: <span className="font-bold text-red-700">BLOCKED_BY_VALID_ORDER</span> (আদালতের আদেশ নং ORD-DH-2024-991)
+                </div>
+              </div>
+
+              {/* Card 4 */}
+              <div className="bg-white p-5 rounded-lg border-2 border-emerald-200 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-8 h-8 rounded-full bg-govt-green text-white font-bold flex items-center justify-center text-sm">
+                    ৪
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-base">অপরিবর্তনীয় অডিট ট্রেইল (Immutable Audit Log)</h3>
+                </div>
+                <p className="text-xs text-gray-600 leading-relaxed mb-3">
+                  <code className="text-govt-green font-semibold">auditor1</code> বা <code className="text-govt-green font-semibold">admin1</code> হিসেবে লগইন করে অডিট পেজে যান। প্রতিটি অনুমোদন, গেটকিপার চেক এবং বন্ধক এন্ট্রির অপরিবর্তনীয় টাইমস্ট্যাম্প ও কোরিলেশন ট্র্যাক করুন।
+                </p>
+                <div className="bg-gray-50 p-2.5 rounded border border-gray-200 text-[11px] text-gray-700 font-mono">
+                  নিরাপত্তা: <span className="font-bold text-emerald-800">অপরিবর্তনীয় ও হ্যাস-চেইন সুরক্ষিত অডিট ট্রেইল</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Demo Credentials Table */}
+            <div className="bg-white rounded-lg border border-govt-border p-5 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                <h4 className="font-bold text-govt-green text-sm flex items-center gap-2">
+                  <Building size={16} />
+                  <span>ডেমো ইউজার অ্যাকাউন্ট ক্রেডেনশিয়াল (পাসওয়ার্ড সবার জন্য: <code className="font-mono bg-gray-100 px-1.5 py-0.5 rounded text-gray-800">demo123</code>)</span>
+                </h4>
+                <Link to="/login" className="text-xs text-govt-green hover:underline font-semibold flex items-center gap-1">
+                  <span>লগইন পেজে যান</span> <ArrowRight size={14} />
+                </Link>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                  <div className="font-mono font-bold text-gray-800">court_officer1</div>
+                  <div className="text-[11px] text-gray-500">আদালত কর্মকর্তা</div>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                  <div className="font-mono font-bold text-gray-800">order_approver1</div>
+                  <div className="text-[11px] text-gray-500">আদেশ অনুমোদনকারী</div>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                  <div className="font-mono font-bold text-gray-800">registry_officer1</div>
+                  <div className="text-[11px] text-gray-500">রেজিস্ট্রি কর্মকর্তা</div>
+                </div>
+                <div className="p-2 bg-gray-50 rounded border border-gray-200">
+                  <div className="font-mono font-bold text-gray-800">bank_officer1</div>
+                  <div className="text-[11px] text-gray-500">ব্যাংক কর্মকর্তা</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Stakeholder workflow */}
         <section className="bg-white border-y border-govt-border py-14 px-4">
           <div className="max-w-5xl mx-auto">

@@ -90,11 +90,38 @@ export default function AuditPage() {
           </button>
         </div>
 
-        {/* Security badge note */}
-        <div className="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded text-sm text-emerald-900 flex items-start gap-3 shadow-xs">
-          <ShieldCheck size={20} className="shrink-0 text-emerald-700 mt-0.5" />
-          <div className="leading-relaxed">
-            <strong>টেম্পার-প্রুফ অডিট ট্রেইল:</strong> সকল অডিট রেকর্ড ক্রিপ্টোগ্রাফিক হ্যাশ চেইন ও কোরিলেশন আইডি দ্বারা সংরক্ষিত। কোনো ব্যবহারকারী বা অ্যাডমিনিস্ট্রেটর এই রেকর্ড অপসারণ বা পরিবর্তন করতে সক্ষম নয়।
+        {/* Security badge note & Demo Documentation */}
+        <div className="bg-white border border-govt-border rounded-lg p-4 sm:p-5 shadow-sm space-y-4">
+          <div className="bg-emerald-50 border-l-4 border-emerald-600 p-4 rounded text-sm text-emerald-900 flex items-start gap-3">
+            <ShieldCheck size={22} className="shrink-0 text-emerald-700 mt-0.5" />
+            <div className="leading-relaxed">
+              <strong>টেম্পার-প্রুফ অডিট ট্রেইল:</strong> সকল অডিট রেকর্ড ক্রিপ্টোগ্রাফিক হ্যাশ চেইন ও কোরিলেশন আইডি দ্বারা সংরক্ষিত। কোনো ব্যবহারকারী বা অ্যাডমিনিস্ট্রেটর এই রেকর্ড অপসারণ বা পূর্ববর্তী তারিখ দিয়ে পরিবর্তন করতে সক্ষম নয়।
+            </div>
+          </div>
+
+          <div className="bg-gray-50 border border-gray-200 rounded p-3.5 text-xs text-gray-700 space-y-2.5">
+            <div className="font-bold text-gray-900 border-b border-gray-200 pb-1.5 flex items-center justify-between">
+              <span>📖 অডিট ট্রেইল ডক্যুমেন্টেশন ও নিরীক্ষা নির্দেশিকা (Auditor Compliance Guide):</span>
+              <span className="text-[11px] text-govt-green font-semibold">আইনগত প্রমাণযোগ্যতা</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-gray-600">
+              <div className="bg-white p-2 rounded border border-gray-200">
+                <div className="font-semibold text-gray-800 text-[11px]">১. কর্মকর্তা ও প্রতিষ্ঠান</div>
+                <div className="text-[10px] text-gray-500 mt-0.5">কোন ইউজার কোন অনুমোদিত প্রতিষ্ঠান থেকে কখন অ্যাকশন নিয়েছেন তা অপরিবর্তনীয়ভাবে সংরক্ষণ হয়।</div>
+              </div>
+              <div className="bg-white p-2 rounded border border-gray-200">
+                <div className="font-semibold text-gray-800 text-[11px]">২. পরিবর্তনের সারসংক্ষেপ</div>
+                <div className="text-[10px] text-gray-500 mt-0.5">পূর্বের স্ট্যাটাস এবং বর্তমান স্ট্যাটাস পরিবর্তনের সম্পূর্ণ হিস্ট্রি স্ট্রাকচার্ড ডাটায় সংরক্ষিত।</div>
+              </div>
+              <div className="bg-white p-2 rounded border border-gray-200">
+                <div className="font-semibold text-gray-800 text-[11px]">৩. কোরিলেশন ট্র্যাকিং</div>
+                <div className="text-[10px] text-gray-500 mt-0.5">একটি গেটকিপার রিকোয়েস্ট থেকে শুরু করে পার্সেল চেকের শেষ পর্যন্ত একই ট্রেস আইডি থাকে।</div>
+              </div>
+              <div className="bg-white p-2 rounded border border-gray-200">
+                <div className="font-semibold text-gray-800 text-[11px]">৪. আইনি জবাবদিহিতা</div>
+                <div className="text-[10px] text-gray-500 mt-0.5">জাল দলিল বা অবৈধ ছাড়পত্রের ক্ষেত্রে কে অনুমোদন দিয়েছিল তা নির্ভুলভাবে প্রমাণ করা যায়।</div>
+              </div>
+            </div>
           </div>
         </div>
 

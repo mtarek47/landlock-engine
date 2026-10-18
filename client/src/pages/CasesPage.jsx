@@ -137,6 +137,38 @@ export default function CasesPage() {
           </div>
         </div>
 
+        {/* Judicial Workflow & Demo Documentation */}
+        <div className="bg-white border border-govt-border rounded-lg p-4 sm:p-5 shadow-sm space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-2.5">
+            <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
+              <Gavel size={15} />
+              <span>আদালত ওয়ার্কফ্লো ও অনুমোদন নির্দেশিকা (Judicial Workflow Documentation)</span>
+            </div>
+            <span className="text-[11px] text-gray-500">৪-আই নীতি (Four-Eyes Principle) সক্রিয়</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-gray-700">
+            <div className="bg-emerald-50/70 p-3 rounded border border-emerald-200">
+              <div className="font-bold text-govt-green text-xs mb-1">১. আদেশ প্রস্তুত ও দাখিল (Submission)</div>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                <code className="text-govt-green font-semibold">court_officer1</code> আদালতে মামলা নথিভুক্ত করে ড্রাফট আদেশ প্রস্তুত করেন এবং অনুমোদনের জন্য দাখিল (SUBMITTED) করেন।
+              </p>
+            </div>
+            <div className="bg-emerald-50/70 p-3 rounded border border-emerald-200">
+              <div className="font-bold text-govt-green text-xs mb-1">২. বিচারিক অনুমোদন (Judge Approval)</div>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                <code className="text-govt-green font-semibold">order_approver1</code> (বিজ্ঞ বিচারক) আদেশটি পর্যালোচনা করে APPROVE বা REJECT করেন। তৈরিকারী নিজে অনুমোদন করতে পারবেন না।
+              </p>
+            </div>
+            <div className="bg-emerald-50/70 p-3 rounded border border-emerald-200">
+              <div className="font-bold text-govt-green text-xs mb-1">৩. স্বয়ংক্রিয় ব্লক তৈরি (Restriction)</div>
+              <p className="text-[11px] text-gray-600 leading-relaxed">
+                অনুমোদনের সাথে সাথে সিস্টেমে একটি সক্রিয় নিষেধাজ্ঞা তৈরি হয় যা সাব-রেজিস্ট্রারের লেনদেন গেটকিপার এপিআই-তে জমি হস্তান্তর সঙ্গে সঙ্গে ব্লক করে দেয়।
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Feedback message */}
         {message.text && (
           <div

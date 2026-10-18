@@ -17,7 +17,7 @@ const DEMO_USERS = [
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuth()
+  const { login, user, isAuthenticated } = useAuth()
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [selectedUser, setSelectedUser] = useState('')
@@ -28,11 +28,6 @@ export default function LoginPage() {
       password: '',
     }
   })
-
-  if (isAuthenticated) {
-    navigate('/dashboard')
-    return null
-  }
 
   const handleSelectDemo = (username) => {
     setValue('username', username)
@@ -91,6 +86,17 @@ export default function LoginPage() {
                 <h1 className="text-2xl font-bold text-govt-green">প্রাতিষ্ঠানিক লগইন</h1>
                 <p className="text-gray-500 text-sm mt-1">আপনার অনুমোদিত দাপ্তরিক আইডি দিয়ে প্রবেশ করুন</p>
               </div>
+
+              {isAuthenticated && user && (
+                <div className="bg-emerald-50 border border-emerald-300 rounded p-3 mb-4 text-xs text-emerald-900 flex items-center justify-between">
+                  <div>
+                    <span className="font-bold">সক্রিয় সেশন:</span> {user.displayName} ({user.role})
+                  </div>
+                  <Link to="/dashboard" className="text-govt-green font-bold hover:underline shrink-0 ml-2">
+                    ড্যাশবোর্ড →
+                  </Link>
+                </div>
+              )}
 
               {error && (
                 <div

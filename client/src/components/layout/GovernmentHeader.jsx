@@ -52,24 +52,26 @@ export default function GovernmentHeader({
 
             <Link
               to={effectiveAuth ? getRoleHomeRoute(user?.role) : '/'}
-              className="flex items-center gap-2.5 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-govt-gold rounded p-0.5 transition-all"
+              className="flex items-center gap-2.5 sm:gap-3 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-govt-gold rounded p-0.5 transition-all"
             >
               <BrandLogo size="md" className="shrink-0" />
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white font-extrabold text-base sm:text-lg tracking-tight leading-none group-hover:text-green-100 transition-colors font-bangla">
-                    ল্যান্ডলক ইঞ্জিন
-                  </span>
-                  <img
-                    src="/govt-bd.png"
-                    alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার প্রতীক"
-                    className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0 drop-shadow-xs"
-                    loading="eager"
-                  />
+                <div className="text-white font-extrabold text-base sm:text-lg tracking-tight leading-none group-hover:text-green-100 transition-colors font-bangla">
+                  ল্যান্ডলক ইঞ্জিন
                 </div>
                 <div className="text-[10px] sm:text-[11px] text-green-100/90 font-bangla font-medium leading-tight mt-0.5 tracking-tight hidden sm:block">
                   স্বয়ংক্রিয় ভূমি নিষেধাজ্ঞা ও দায় রেজিস্ট্রি
                 </div>
+              </div>
+
+              {/* Government of Bangladesh Seal placed to the right with comfortable breathing room */}
+              <div className="hidden xs:flex items-center pl-2.5 sm:pl-3.5 ml-1 sm:ml-2 border-l border-white/20">
+                <img
+                  src="/govt-bd.png"
+                  alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার প্রতীক"
+                  className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 drop-shadow-xs transition-transform duration-200 group-hover:scale-105"
+                  loading="eager"
+                />
               </div>
             </Link>
           </div>

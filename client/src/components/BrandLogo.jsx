@@ -52,20 +52,12 @@ export default function BrandLogo({
     <div className="flex items-center gap-2.5">
       {imageElement}
       <div className="text-left select-none">
-        <div className="flex items-center gap-2">
-          <span
-            className={`font-extrabold text-base sm:text-lg tracking-tight leading-none font-bangla transition-colors ${
-              variant === 'light' ? 'text-white group-hover:text-green-100' : 'text-gray-900 group-hover:text-[#006A4E]'
-            }`}
-          >
-            {title}
-          </span>
-          <img
-            src="/govt-bd.png"
-            alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার"
-            className="w-5 h-5 sm:w-6 sm:h-6 object-contain shrink-0 drop-shadow-xs"
-            loading="eager"
-          />
+        <div
+          className={`font-extrabold text-base sm:text-lg tracking-tight leading-none font-bangla transition-colors ${
+            variant === 'light' ? 'text-white group-hover:text-green-100' : 'text-gray-900 group-hover:text-[#006A4E]'
+          }`}
+        >
+          {title}
         </div>
         {subtitle && (
           <div
@@ -76,6 +68,16 @@ export default function BrandLogo({
             {subtitle}
           </div>
         )}
+      </div>
+
+      {/* Govt BD emblem to the right with distance */}
+      <div className={`hidden sm:flex items-center pl-2.5 ml-1.5 border-l ${variant === 'light' ? 'border-white/20' : 'border-gray-200'}`}>
+        <img
+          src="/govt-bd.png"
+          alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার"
+          className="w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0 drop-shadow-xs"
+          loading="eager"
+        />
       </div>
     </div>
   ) : (

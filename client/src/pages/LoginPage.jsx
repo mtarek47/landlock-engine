@@ -98,20 +98,22 @@ export default function LoginPage() {
           <Link to="/" className="inline-flex items-center gap-3.5 group">
             <BrandLogo size="xl" className="shrink-0" />
             <div>
-              <div className="flex items-center gap-2.5">
-                <span className="text-white font-extrabold text-xl sm:text-2xl tracking-tight leading-tight font-bangla group-hover:text-green-100 transition-colors">
-                  ল্যান্ডলক ইঞ্জিন
-                </span>
-                <img
-                  src="/govt-bd.png"
-                  alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার"
-                  className="w-7 h-7 sm:w-8 sm:h-8 object-contain shrink-0 drop-shadow-sm"
-                  loading="eager"
-                />
+              <div className="text-white font-extrabold text-xl sm:text-2xl tracking-tight leading-tight font-bangla group-hover:text-green-100 transition-colors">
+                ল্যান্ডলক ইঞ্জিন
               </div>
               <div className="text-xs text-green-200/90 font-bangla tracking-tight mt-0.5">
                 স্বয়ংক্রিয় ভূমি নিষেধাজ্ঞা ও দায় রেজিস্ট্রি
               </div>
+            </div>
+
+            {/* Govt BD emblem to the right with distance */}
+            <div className="hidden sm:flex items-center pl-3.5 ml-2 border-l border-white/20">
+              <img
+                src="/govt-bd.png"
+                alt="গণপ্রজাতন্ত্রী বাংলাদেশ সরকার"
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0 drop-shadow-md transition-transform duration-200 group-hover:scale-105"
+                loading="eager"
+              />
             </div>
           </Link>
 

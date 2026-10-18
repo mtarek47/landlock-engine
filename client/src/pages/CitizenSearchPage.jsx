@@ -16,27 +16,40 @@ import {
   Info,
   HelpCircle,
   ExternalLink,
-  Map
+  Map,
+  Printer
 } from 'lucide-react'
 import MouzaMapViewer from '../components/MouzaMapViewer'
 
 const DEMO_PARCELS = [
   {
-    label: 'ধানমন্ডি দাগ ৫০০১ (নিষেধাজ্ঞা ও বন্ধকযুক্ত)',
+    label: 'ধানমন্ডি দাগ ৫০০১',
+    badge: 'আদালতে অবরুদ্ধ',
+    desc: 'আদালতের স্থায়ী নিষেধাজ্ঞা ও ব্যাংকের বন্ধক বলবৎ',
+    color: 'border-red-300 bg-red-50 hover:bg-red-100 text-red-900',
+    icon: '🛑',
     mouza: 'DHANMONDI-01',
     dag: '5001',
     khatian: '101',
     id: 'b1000000-0000-0000-0000-000000000001',
   },
   {
-    label: 'গুলশান দাগ ৬০০২ (মামলা প্রক্রিয়াধীন)',
+    label: 'গুলশান দাগ ৬০০২',
+    badge: 'মামলা বিবেচনাধীন',
+    desc: 'বণ্টন মামলা প্রক্রিয়াধীন (আদেশ খসড়া পর্যায়ে)',
+    color: 'border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900',
+    icon: '⚠️',
     mouza: 'GULSHAN-02',
     dag: '6002',
     khatian: '202',
     id: 'b2000000-0000-0000-0000-000000000002',
   },
   {
-    label: 'মিরপুর দাগ ৭০০৩ (ঝুঁকিমুক্ত ও পরিষ্কার)',
+    label: 'মিরপুর দাগ ৭০০৩',
+    badge: 'দায়মুক্ত ও নিরাপদ',
+    desc: 'সম্পূর্ণ নিষ্কণ্টক জমি, পূর্ববর্তী সকল ঋণ অবমুক্ত',
+    color: 'border-green-300 bg-green-50 hover:bg-green-100 text-green-900',
+    icon: '✅',
     mouza: 'MIRPUR-03',
     dag: '7003',
     khatian: '303',
@@ -169,15 +182,24 @@ export default function CitizenSearchPage() {
               <span className="text-[11px] text-gray-500">এক ক্লিকে স্বয়ংক্রিয় অনুসন্ধান চালাতে নিচে ক্লিক করুন</span>
             </div>
 
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-4">
               {DEMO_PARCELS.map((item) => (
                 <button
                   key={item.dag}
                   type="button"
                   onClick={() => handleDemoSelect(item)}
-                  className="text-xs px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-govt-green font-semibold rounded-md border border-emerald-300 hover:border-govt-green transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+                  className={`p-3 rounded-lg border text-left transition-all shadow-2xs hover:shadow-sm cursor-pointer ${item.color}`}
                 >
-                  <span>⚡ {item.label}</span>
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="font-bold text-xs flex items-center gap-1.5">
+                      <span>{item.icon}</span>
+                      <span>{item.label}</span>
+                    </span>
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/80 border border-current">
+                      {item.badge}
+                    </span>
+                  </div>
+                  <p className="text-[11px] opacity-85 leading-tight">{item.desc}</p>
                 </button>
               ))}
             </div>
@@ -448,6 +470,37 @@ export default function CitizenSearchPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Actionable Advice for Citizen / Buyer */}
+                <div className="mt-5 p-4 rounded-lg border bg-white shadow-2xs">
+                  <h3 className="font-bold text-sm text-gray-800 mb-2 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <span>💡</span>
+                      <span>ক্রেতার করণীয় ও বিশেষজ্ঞ পরামর্শ:</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="text-xs text-govt-green hover:underline flex items-center gap-1 border border-govt-border px-2.5 py-1 rounded bg-gray-50 hover:bg-gray-100 cursor-pointer"
+                    >
+                      <Printer size={13} />
+                      <span>যাচাই স্লিপ প্রিন্ট করুন</span>
+                    </button>
+                  </h3>
+                  {selectedStatus.hasActiveRestriction ? (
+                    <div className="p-3 bg-red-50 rounded border border-red-200 text-xs text-red-900 leading-relaxed">
+                      <strong>⛔ বায়না বা লেনদেন থেকে বিরত থাকুন:</strong> বিজ্ঞ দেওয়ানি আদালতের আদেশ অনুসারে জমিটির হস্তান্তর স্থগিত রয়েছে। আদালতের নিষ্পত্তি ব্যতীত সাব-রেজিস্ট্রার এই জমির দলিল রেজিস্ট্রেশন করবেন না।
+                    </div>
+                  ) : selectedStatus.hasActiveMortgage ? (
+                    <div className="p-3 bg-amber-50 rounded border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                      <strong>⚠️ ব্যাংক দায়মুক্তি সনদ আবশ্যক:</strong> জমিটিতে ব্যাংকের কাছে ঋণ দায় বিদ্যমান। জমি কেনার পূর্বে সংশ্লিষ্ট ব্যাংক হতে রেজিস্টার্ড অবমুক্তি দলিল (Bank NOC / Release Deed) নিশ্চিত করুন।
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-green-50 rounded border border-green-200 text-xs text-green-900 leading-relaxed">
+                      <strong>✅ প্রাথমিক যাচাইয়ে কোনো বাধা নেই:</strong> এই খতিয়ান ও দাগের বিপরীতে কোনো আদালতের নিষেধাজ্ঞা বা সক্রিয় ব্যাংক দায় পাওয়া যায়নি। সহকারী কমিশনার (ভূমি) অফিসে নামজারি রেকর্ড মিলিয়ে লেনদেনের পরবর্তী ধাপে অগ্রসর হোন।
+                    </div>
+                  )}
+                </div>
 
                 {/* Legal Disclaimer Box */}
                 <div className="mt-5 p-3.5 bg-yellow-50 border border-yellow-300 rounded text-xs text-yellow-900 leading-relaxed flex items-start gap-2">

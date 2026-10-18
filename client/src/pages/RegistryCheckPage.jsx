@@ -196,8 +196,35 @@ export default function RegistryCheckPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="parcelId" className="label">
-                  পার্সেল আইডি (Parcel UUID) <span className="text-red-500">*</span>
+                <label htmlFor="parcelSelect" className="label flex items-center justify-between">
+                  <span>পার্সেল নির্বাচন করুন (Quick Selector)</span>
+                  <span className="text-xs text-govt-green font-normal">ডেমো প্রিসেট</span>
+                </label>
+                <select
+                  id="parcelSelect"
+                  className="input-field mb-2 text-xs font-medium text-gray-800 bg-emerald-50/50 border-emerald-300"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      setValue('parcelId', e.target.value)
+                      regenerateRequestId()
+                    }
+                  }}
+                  defaultValue={initialParcelId || ''}
+                >
+                  <option value="">-- দ্রুত জমি বাছাই করুন --</option>
+                  <option value="b1000000-0000-0000-0000-000000000001">
+                    🛑 ধানমন্ডি-০১ | দাগ ৫০০১ | খতিয়ান ১০১ (আদালতে অবরুদ্ধ)
+                  </option>
+                  <option value="b2000000-0000-0000-0000-000000000002">
+                    ⚠️ গুলশান-০২ | দাগ ৬০০২ | খতিয়ান ২০২ (মামলা প্রক্রিয়াধীন)
+                  </option>
+                  <option value="b3000000-0000-0000-0000-000000000003">
+                    ✅ মিরপুর-০৩ | দাগ ৭০০৩ | খতিয়ান ৩০৩ (নিষ্কণ্টক ও পরিষ্কার)
+                  </option>
+                </select>
+
+                <label htmlFor="parcelId" className="label text-xs text-gray-500">
+                  পার্সেল ইউনিক আইডি (Parcel UUID) <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="parcelId"
@@ -215,9 +242,6 @@ export default function RegistryCheckPage() {
                 {errors.parcelId && (
                   <p className="text-red-600 text-xs mt-1">{errors.parcelId.message}</p>
                 )}
-                <span className="text-[11px] text-gray-400 mt-1 block">
-                  সিস্টেমের ডেমো পার্সেল আইডি: <code>b1000000-0000-0000-0000-000000000001</code>
-                </span>
               </div>
 
               <div>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Shield, Search, FileCheck, AlertTriangle, ArrowRight, Building, CheckCircle2, Lock } from 'lucide-react'
+import { Shield, Search, FileCheck, AlertTriangle, ArrowRight, Building, CheckCircle2, Lock, Map, Layers } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -22,6 +22,13 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              <Link
+                to="/map"
+                className="hidden sm:inline-flex items-center gap-1.5 text-white hover:text-green-100 text-sm font-medium px-3 py-2 rounded transition-colors"
+              >
+                <Map size={16} />
+                <span>মৌজা নকশা (GIS)</span>
+              </Link>
               <Link
                 to="/citizen"
                 className="hidden sm:inline-block text-white hover:text-green-100 text-sm font-medium px-3 py-2 rounded transition-colors"
@@ -55,18 +62,25 @@ export default function LandingPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link
                 to="/citizen"
-                className="w-full sm:w-auto bg-govt-gold text-gray-900 px-8 py-3.5 rounded-lg font-bold text-base hover:bg-yellow-400 transition-colors shadow-md flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-govt-gold text-gray-900 px-7 py-3.5 rounded-lg font-bold text-base hover:bg-yellow-400 transition-colors shadow-md flex items-center justify-center gap-2"
               >
                 <Search size={20} />
-                <span>জমির অবস্থা অনুসন্ধান করুন</span>
+                <span>জমির ঝুঁকি অনুসন্ধান করুন</span>
                 <ArrowRight size={18} />
               </Link>
               <Link
+                to="/map"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-400 px-7 py-3.5 rounded-lg font-bold text-base transition-colors shadow-md flex items-center justify-center gap-2"
+              >
+                <Map size={20} />
+                <span>মৌজা নকশা (স্যাটেলাইট)</span>
+              </Link>
+              <Link
                 to="/login"
-                className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/30 px-8 py-3.5 rounded-lg font-semibold text-base transition-colors flex items-center justify-center gap-2"
+                className="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/30 px-7 py-3.5 rounded-lg font-semibold text-base transition-colors flex items-center justify-center gap-2"
               >
                 <Building size={20} />
-                <span>সরকারি ও প্রাতিষ্ঠানিক ড্যাশবোর্ড</span>
+                <span>প্রাতিষ্ঠানিক প্রবেশ</span>
               </Link>
             </div>
           </div>

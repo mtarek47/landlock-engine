@@ -18,7 +18,7 @@ export default function MouzaMapViewer({
   const layersGroupRef = useRef(null)
   const tileLayerRef = useRef(null)
 
-  const [activeLayer, setActiveLayer] = useState('osm') // 'osm' | 'satellite'
+  const [activeLayer, setActiveLayer] = useState('satellite') // 'satellite' by default | 'osm'
   const [selectedPlot, setSelectedPlot] = useState(null)
   const [activeMouza, setActiveMouza] = useState(initialMouza)
   const [mapReady, setMapReady] = useState(false)
@@ -42,13 +42,16 @@ export default function MouzaMapViewer({
       attributionControl: false,
     })
 
-    // Base OSM Layer
-    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors',
-    }).addTo(map)
+    // Default Satellite Layer (Esri World Imagery)
+    const satLayer = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 19,
+        attribution: 'Esri, Maxar, Earthstar Geographics',
+      }
+    ).addTo(map)
 
-    tileLayerRef.current = osmLayer
+    tileLayerRef.current = satLayer
     mapInstanceRef.current = map
 
     // Layer group for polygons

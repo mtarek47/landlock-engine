@@ -1,452 +1,393 @@
-import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import Layout from '../components/Layout'
-import LoadingSpinner from '../components/LoadingSpinner'
-import StatusBadge from '../components/StatusBadge'
-import { registryApi } from '../api/client'
+import { useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   ClipboardCheck,
+  Search,
   ShieldAlert,
-  CheckCircle,
-  AlertOctagon,
-  Clock,
-  RotateCcw,
+  CheckCircle2,
+  AlertTriangle,
   FileText,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
   Building,
-  Info,
-  Hash,
-  ArrowRight
+  RotateCcw
 } from 'lucide-react'
+import DashboardLayout from '../components/layout/DashboardLayout'
 
-const TRANSACTION_TYPES = [
-  { value: 'SALE', label: 'বিক্রয় (Sale Deed)' },
-  { value: 'GIFT', label: 'দান (Gift Deed / হেবা)' },
-  { value: 'MORTGAGE', label: 'বন্ধক (Mortgage / Lien)' },
-  { value: 'LEASE', label: 'ইজারা (Lease Agreement)' },
-  { value: 'HEIRSHIP_TRANSFER', label: 'ওয়ারিশান হস্তান্তর (Heirship Transfer)' },
-  { value: 'OTHER', label: 'অন্যান্য দলিল (Other Transfer)' },
-]
-
-const REASON_CODES_BN = {
-  ACTIVE_COURT_INJUNCTION_OR_BLOCK: 'সক্রিয় আদালতি নিষেধাজ্ঞা বা স্থগিতাদেশ বলবৎ রয়েছে',
-  TRANSFER_PROHIBITED: 'উক্ত লেনদেনের জন্য আইনগত হস্তান্তর সম্পূর্ণ নিষিদ্ধ',
-  ACTIVE_MORTGAGE_NO_RELEASE: 'আর্থিক প্রতিষ্ঠানের সক্রিয় বন্ধক বিদ্যমান এবং কোনো অনাপত্তি (NOC) বা দায়মুক্তি দাখিল করা হয়নি',
-  PARCEL_NOT_FOUND: 'প্রদত্ত আইডি বা বিবরণীর কোনো পার্সেল রেজিস্ট্রিতে খুঁজে পাওয়া যায়নি',
-  INVALID_TRANSACTION_TYPE: 'অকার্যকর বা অননুমোদিত লেনদেনের ধরন',
-}
-
-const DEMO_PRESETS = [
+const INITIAL_ROWS = [
   {
-    label: 'পার্সেল ১: ধানমন্ডি (আদালতের নিষেধাজ্ঞায় অবরুদ্ধ SALE)',
-    parcelId: 'b1000000-0000-0000-0000-000000000001',
-    transactionType: 'SALE',
+    sl: 1,
+    deedNo: 'ঢাকা-১২৩-৪৫৬-৭৮৯',
+    district: 'ঢাকা',
+    upazila: 'সাভার',
+    dag: '৭৮৯',
+    khatian: '৪৫৬',
+    mouza: '১২৩',
+    resultBn: 'নিষেধাজ্ঞা',
+    status: 'BLOCKED',
+    statusColor: 'bg-red-50 text-red-700 border-red-200',
+    dotColor: 'bg-red-500',
+    caseNo: 'সিভিল মামলা নং: ১২৩/২০২৪',
+    court: 'ঢাকা জেলা জজ আদালত',
+    reason: 'দেওয়ানি আদালতের বৈধ স্থগিতাদেশ বলবৎ রয়েছে। রেজিস্ট্রি সম্পূর্ণ নিষিদ্ধ।',
+    date: '২০২৪-০৪-১০',
   },
   {
-    label: 'পার্সেল ১: ধানমন্ডি (বন্ধক যাচাই MORTGAGE)',
-    parcelId: 'b1000000-0000-0000-0000-000000000001',
-    transactionType: 'MORTGAGE',
+    sl: 2,
+    deedNo: 'রাজশাহী-১১১-২২২-৩৩৩',
+    district: 'রাজশাহী',
+    upazila: 'বোয়ালিয়া',
+    dag: '৩৩৩',
+    khatian: '২২২',
+    mouza: '১১১',
+    resultBn: 'ব্যাংক বন্ধক',
+    status: 'MORTGAGE',
+    statusColor: 'bg-orange-50 text-orange-700 border-orange-200',
+    dotColor: 'bg-orange-500',
+    caseNo: 'সোনালী ব্যাংক পিএলসি',
+    court: 'করপোরেট শাখা, রাজশাহী',
+    reason: 'আর্থিক প্রতিষ্ঠানের কাছে সক্রিয় বন্ধক বিদ্যমান। অনাপত্তিপত্র (NOC) আবশ্যক।',
+    date: '২০২৩-১১-১২',
   },
   {
-    label: 'পার্সেল ৩: মিরপুর (পরিষ্কার ও ঝুঁকিমুক্ত CLEAR)',
-    parcelId: 'b3000000-0000-0000-0000-000000000003',
-    transactionType: 'SALE',
+    sl: 3,
+    deedNo: 'খুলনা-৫৫৫-৬৬৬-৭৭৭',
+    district: 'খুলনা',
+    upazila: 'খালিশপুর',
+    dag: '৭৭৭',
+    khatian: '৬৬৬',
+    mouza: '৫৫৫',
+    resultBn: 'নিরাপদ',
+    status: 'CLEAR',
+    statusColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    dotColor: 'bg-emerald-500',
+    caseNo: 'কোনো বিরোধ নেই',
+    court: 'সাব-রেজিস্ট্রি অফিস, খুলনা',
+    reason: 'জমির উপর কোনো আইনি নিষেধাজ্ঞা, আদালতের আদেশ বা ব্যাংক বন্ধক নেই।',
+    date: '২০২৪-০৫-০১',
+  },
+  {
+    sl: 4,
+    deedNo: 'চট্টগ্রাম-৪৪৪-৯৯৯-০০০',
+    district: 'চট্টগ্রাম',
+    upazila: 'পাঁচলাইশ',
+    dag: '০০০',
+    khatian: '৯৯৯',
+    mouza: '৪৪৪',
+    resultBn: 'অপেক্ষমাণ',
+    status: 'PENDING',
+    statusColor: 'bg-amber-50 text-amber-700 border-amber-200',
+    dotColor: 'bg-amber-500',
+    caseNo: 'বণ্টন মামলা পর্যালোচনাধীন',
+    court: 'সহকারী জজ ১ম আদালত, চট্টগ্রাম',
+    reason: 'খসড়া আদেশ বিচারিক অনুমোদনের জন্য অপেক্ষমাণ। চূড়ান্ত সিদ্ধান্ত এখনও প্রদান করা হয়নি।',
+    date: '২০২৪-০৩-২২',
+  },
+  {
+    sl: 5,
+    deedNo: 'বরিশাল-১২১-২১২-৩৪১',
+    district: 'বরিশাল',
+    upazila: 'কোতোয়ালী',
+    dag: '৩৪১',
+    khatian: '২১২',
+    mouza: '১২১',
+    resultBn: 'নিষেধাজ্ঞা',
+    status: 'BLOCKED',
+    statusColor: 'bg-red-50 text-red-700 border-red-200',
+    dotColor: 'bg-red-500',
+    caseNo: 'ল্যান্ড ট্রাইব্যুনাল মামলা ৩৪/২০২৩',
+    court: 'যুগ্ম জেলা জজ আদালত, বরিশাল',
+    reason: 'মালিকানা স্বত্ব বিরোধের প্রেক্ষিতে চিরস্থায়ী নিষেধাজ্ঞার আদেশ জারিকৃত।',
+    date: '২০২৩-০৯-১৮',
   },
 ]
 
 export default function RegistryCheckPage() {
   const [searchParams] = useSearchParams()
-  const initialParcelId = searchParams.get('parcelId') || ''
+  const initialDag = searchParams.get('dag') || (searchParams.get('parcelId') ? '৭৮৯' : '')
+  const [filterDag, setFilterDag] = useState(initialDag)
+  const [filterKhatian, setFilterKhatian] = useState('')
+  const [filterStatus, setFilterStatus] = useState('ALL')
+  const [activePage, setActivePage] = useState(1)
+  const [selectedRecord, setSelectedRecord] = useState(null)
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [decisionResult, setDecisionResult] = useState(null)
+  const handleClearFilter = () => {
+    setFilterDag('')
+    setFilterKhatian('')
+    setFilterStatus('ALL')
+    setActivePage(1)
+  }
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
-    defaultValues: {
-      parcelId: initialParcelId,
-      transactionType: 'SALE',
-      requestId: crypto.randomUUID(),
-    }
+  // Filter items based on input
+  const filteredRows = INITIAL_ROWS.filter((row) => {
+    if (filterDag && !row.deedNo.includes(filterDag) && !row.dag.includes(filterDag)) return false
+    if (filterKhatian && !row.deedNo.includes(filterKhatian) && !row.khatian.includes(filterKhatian)) return false
+    if (filterStatus !== 'ALL' && row.status !== filterStatus) return false
+    return true
   })
 
-  // Set initial parcel ID if in query params
-  useEffect(() => {
-    if (initialParcelId) {
-      setValue('parcelId', initialParcelId)
-    }
-  }, [initialParcelId, setValue])
-
-  const regenerateRequestId = () => {
-    setValue('requestId', crypto.randomUUID())
-  }
-
-  const applyPreset = (preset) => {
-    setValue('parcelId', preset.parcelId)
-    setValue('transactionType', preset.transactionType)
-    regenerateRequestId()
-  }
-
-  const onSubmit = async (data) => {
-    setLoading(true)
-    setError('')
-    setDecisionResult(null)
-
-    try {
-      const payload = {
-        requestId: data.requestId || crypto.randomUUID(),
-        parcelId: data.parcelId.trim(),
-        transactionType: data.transactionType,
-      }
-
-      const res = await registryApi.check(payload)
-      setDecisionResult(res.data?.data)
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-        'রেজিস্ট্রি গেটকিপার সিদ্ধান্ত গণনায় ত্রুটি দেখা দিয়েছে।'
-      )
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
-    <Layout>
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Page Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-govt-green flex items-center gap-2">
-            <ClipboardCheck size={26} />
-            <span>সাব-রেজিস্ট্রি ও ব্যাংক গেটকিপার যাচাই (Transaction Gatekeeper)</span>
-          </h1>
-          <p className="text-gray-600 text-sm mt-1">
-            দলিল নিবন্ধন সম্পন্ন করার পূর্বে বা ব্যাংক ঋণ অনুমোদনের পূর্বে ল্যান্ডলক ইঞ্জিনের মাধ্যমে জমির ওপর বৈধ স্থগিতাদেশ ও বন্ধক স্বয়ংক্রিয়ভাবে যাচাই করুন
-          </p>
+    <DashboardLayout>
+      <div className="space-y-6 font-bangla select-text pb-12">
+        {/* Breadcrumbs matching Screen 5: হোম › রেজিস্ট্রি › যাচাই তালিকা */}
+        <div className="flex items-center gap-2 text-xs text-gray-500">
+          <Link to="/" className="hover:text-govt-green transition-colors">হোম</Link>
+          <span>›</span>
+          <Link to="/registry" className="hover:text-govt-green transition-colors">রেজিস্ট্রি</Link>
+          <span>›</span>
+          <span className="text-gray-900 font-semibold">যাচাই তালিকা</span>
         </div>
 
-        {/* Presets Bar */}
-        <div className="bg-white border border-govt-border rounded-lg p-3 shadow-sm">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
-              <Info size={15} />
-              <span>রেজিস্ট্রি গেটকিপার সিমুলেশন ও ডেমো ডক্যুমেন্টেশন (Demo Documentation)</span>
-            </div>
-            <span className="text-[11px] text-gray-500">পরীক্ষার জন্য দ্রুত প্রিসেট নির্বাচন করুন:</span>
-          </div>
+        {/* Heading matching Screen 5 */}
+        <h1 className="text-2xl font-bold text-[#004D38]">
+          যাচাই তালিকা
+        </h1>
 
-          <div className="flex flex-wrap gap-2 mb-4">
-            {DEMO_PRESETS.map((p, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => applyPreset(p)}
-                className="text-xs px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-govt-green font-semibold rounded-md border border-emerald-300 hover:border-govt-green transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>🔍 {p.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Decision Engine Documentation Accordion / Matrix */}
-          <div className="bg-gray-50 border border-gray-200 rounded p-4 text-xs text-gray-700 space-y-3">
-            <div className="font-bold text-gray-900 border-b border-gray-200 pb-2 flex items-center justify-between">
-              <span>🧠 গেটকিপার সিদ্ধান্ত অ্যালগরিদম (Decision Logic Hierarchy):</span>
-              <span className="text-[11px] text-govt-green font-semibold">৫টি সিদ্ধান্ত স্তর</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-              <div className="bg-white p-2.5 rounded border-l-4 border-l-red-600 border border-gray-200">
-                <div className="font-bold text-red-700 text-xs">BLOCKED_BY_VALID_ORDER</div>
-                <div className="text-[11px] text-gray-600 mt-1">
-                  আদালতের কোনো অনুমোদিত বৈধ আদেশ যদি প্রস্তাবিত লেনদেন নিষিদ্ধ করে (যেমন: ধানমন্ডি পার্সেল ১ এ বিক্রয়)।
-                </div>
-              </div>
-              <div className="bg-white p-2.5 rounded border-l-4 border-l-amber-500 border border-gray-200">
-                <div className="font-bold text-amber-700 text-xs">MORTGAGE_REQUIRES_RELEASE</div>
-                <div className="text-[11px] text-gray-600 mt-1">
-                  জমিতে বাণিজ্যিক ব্যাংকের সক্রিয় বন্ধক বলবৎ থাকলে এবং অনুমোদিত অনাপত্তি (NOC) বা দায়মুক্তি না থাকলে।
-                </div>
-              </div>
-              <div className="bg-white p-2.5 rounded border-l-4 border-l-yellow-500 border border-gray-200">
-                <div className="font-bold text-yellow-700 text-xs">REVIEW_REQUIRED</div>
-                <div className="text-[11px] text-gray-600 mt-1">
-                  পার্সেল শনাক্তকরণে গরমিল, অসঙ্গতি বা তথ্যের অস্পষ্টতা থাকলে কোনো বিভ্রান্তিকর ছাড়পত্র না দিয়ে রিভিউ পাঠানো হয়।
-                </div>
-              </div>
-              <div className="bg-white p-2.5 rounded border-l-4 border-l-emerald-600 border border-gray-200">
-                <div className="font-bold text-emerald-700 text-xs">CLEAR</div>
-                <div className="text-[11px] text-gray-600 mt-1">
-                  কোনো নিষেধাজ্ঞা বা অপরিশোধিত বন্ধক না থাকলে লেনদেন নিরাপদ ঘোষণা করা হয় (যেমন: মিরপুর পার্সেল ৩)।
-                </div>
-              </div>
-            </div>
-            <div className="text-[11px] text-gray-500 pt-1 border-t border-gray-200 flex flex-col sm:flex-row justify-between gap-1">
-              <span>🔑 <strong>আইডেমপোটেন্সি কি (Idempotency Key):</strong> <code className="font-mono bg-white px-1 py-0.5 rounded border">requestId</code> নিশ্চিত করে যে একই অনুরোধের জন্য একাধিকবার অডিট ও লেনদেন রিকোয়েস্ট তৈরি হবে না।</span>
-              <span className="text-govt-green font-medium">নিরাপত্তা: সাব-রেজিস্ট্রার কর্তৃক অনুমোদিত এপিআই কল</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Check Request Form */}
-        <div className="card shadow-sm border-t-4 border-t-govt-green">
-          <h2 className="font-bold text-base text-gray-800 mb-4 pb-2 border-b border-govt-border">
-            নতুন লেনদেন যাচাইকরণ অনুরোধ
-          </h2>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="parcelSelect" className="label flex items-center justify-between">
-                  <span>পার্সেল নির্বাচন করুন (Quick Selector)</span>
-                  <span className="text-xs text-govt-green font-normal">ডেমো প্রিসেট</span>
-                </label>
-                <select
-                  id="parcelSelect"
-                  className="input-field mb-2 text-xs font-medium text-gray-800 bg-emerald-50/50 border-emerald-300"
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      setValue('parcelId', e.target.value)
-                      regenerateRequestId()
-                    }
-                  }}
-                  defaultValue={initialParcelId || ''}
-                >
-                  <option value="">-- দ্রুত জমি বাছাই করুন --</option>
-                  <option value="b1000000-0000-0000-0000-000000000001">
-                    🛑 ধানমন্ডি-০১ | দাগ ৫০০১ | খতিয়ান ১০১ (আদালতে অবরুদ্ধ)
-                  </option>
-                  <option value="b2000000-0000-0000-0000-000000000002">
-                    ⚠️ গুলশান-০২ | দাগ ৬০০২ | খতিয়ান ২০২ (মামলা প্রক্রিয়াধীন)
-                  </option>
-                  <option value="b3000000-0000-0000-0000-000000000003">
-                    ✅ মিরপুর-০৩ | দাগ ৭০০৩ | খতিয়ান ৩০৩ (নিষ্কণ্টক ও পরিষ্কার)
-                  </option>
-                </select>
-
-                <label htmlFor="parcelId" className="label text-xs text-gray-500">
-                  পার্সেল ইউনিক আইডি (Parcel UUID) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  id="parcelId"
-                  type="text"
-                  placeholder="যেমন: b1000000-0000-0000-0000-000000000001"
-                  className={`input-field font-mono text-xs ${errors.parcelId ? 'border-red-400' : ''}`}
-                  {...register('parcelId', {
-                    required: 'পার্সেল আইডি প্রদান আবশ্যক',
-                    pattern: {
-                      value: /^[0-9a-fA-F-]{36}$/,
-                      message: 'একটি সঠিক UUID ফরম্যাট প্রদান করুন',
-                    }
-                  })}
-                />
-                {errors.parcelId && (
-                  <p className="text-red-600 text-xs mt-1">{errors.parcelId.message}</p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="transactionType" className="label">
-                  লেনদেনের ধরন (Transaction Type) <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="transactionType"
-                  className="input-field font-medium text-gray-800"
-                  {...register('transactionType', { required: 'লেনদেনের ধরন নির্বাচন করুন' })}
-                >
-                  {TRANSACTION_TYPES.map((t) => (
-                    <option key={t.value} value={t.value}>
-                      {t.label}
-                    </option>
-                  ))}
-                </select>
-                <span className="text-[11px] text-gray-400 mt-1 block">
-                  আদালতের আদেশ কোন ধরনের দলিলের ওপর প্রযোজ্য তা পরীক্ষা করা হবে
-                </span>
-              </div>
-            </div>
-
+        {/* Filter Bar Card matching Screen 5 */}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+            {/* Input 1: দাগ নম্বর */}
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="requestId" className="label">
-                  রিকোয়েস্ট আইডি / আইডেমপোটেন্সি কি (Request UUID)
-                </label>
+              <input
+                type="text"
+                value={filterDag}
+                onChange={(e) => setFilterDag(e.target.value)}
+                placeholder="দাগ নম্বর"
+                className="w-full text-xs sm:text-sm py-2 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+              />
+            </div>
+
+            {/* Input 2: খতিয়ান নম্বর */}
+            <div>
+              <input
+                type="text"
+                value={filterKhatian}
+                onChange={(e) => setFilterKhatian(e.target.value)}
+                placeholder="খতিয়ান নম্বর"
+                className="w-full text-xs sm:text-sm py-2 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+              />
+            </div>
+
+            {/* Select: অবস্থা */}
+            <div>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full text-xs sm:text-sm py-2 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+              >
+                <option value="ALL">অবস্থা (সব)</option>
+                <option value="BLOCKED">নিষেধাজ্ঞা (BLOCKED)</option>
+                <option value="MORTGAGE">ব্যাংক বন্ধক (MORTGAGE)</option>
+                <option value="CLEAR">নিরাপদ (CLEAR)</option>
+                <option value="PENDING">অপেক্ষমাণ (PENDING)</option>
+              </select>
+            </div>
+
+            {/* Button: খুঁজুন / ফিল্টার রিসেট */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {}}
+                className="flex-1 bg-[#006A4E] hover:bg-[#004D38] text-white text-xs sm:text-sm font-bold py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+              >
+                <Search size={15} />
+                <span>খুঁজুন</span>
+              </button>
+              {(filterDag || filterKhatian || filterStatus !== 'ALL') && (
                 <button
                   type="button"
-                  onClick={regenerateRequestId}
-                  className="text-xs text-govt-green hover:underline flex items-center gap-1 font-semibold"
+                  onClick={handleClearFilter}
+                  title="ফিল্টার রিসেট করুন"
+                  className="p-2 border border-gray-300 hover:bg-gray-100 rounded-lg text-gray-600 transition-colors"
                 >
-                  <RotateCcw size={12} />
-                  নতুন কি তৈরি করুন
+                  <RotateCcw size={15} />
                 </button>
-              </div>
-              <input
-                id="requestId"
-                type="text"
-                readOnly
-                className="input-field font-mono text-xs bg-gray-50 text-gray-600"
-                {...register('requestId', { required: true })}
-              />
-              <span className="text-[11px] text-gray-400 mt-0.5 block">
-                পুনরাবৃত্তিমূলক লেনদেন ট্র্যাকিং ও অডিট সুরক্ষার জন্য স্বয়ংক্রিয়ভাবে জেনারেট হয়
-              </span>
+              )}
             </div>
-
-            <div className="pt-2 flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary px-8 py-2.5 text-base flex items-center gap-2 cursor-pointer shadow-sm"
-              >
-                {loading ? (
-                  <>
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>যাচাইকরণ প্রসেসিং হচ্ছে...</span>
-                  </>
-                ) : (
-                  <>
-                    <ClipboardCheck size={18} />
-                    <span>সিদ্ধান্ত যাচাই করুন</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
 
-        {/* Error Feedback */}
-        {error && (
-          <div className="bg-red-50 border border-red-300 text-red-800 rounded p-4 text-sm flex items-start gap-3">
-            <AlertOctagon size={20} className="shrink-0 text-red-600 mt-0.5" />
-            <div>
-              <strong>যাচাইকরণ ব্যর্থ:</strong> {error}
-            </div>
-          </div>
-        )}
+        {/* Data Table Card matching Screen 5 */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs sm:text-sm border-collapse">
+              {/* Table Header matching Screen 5 */}
+              <thead className="bg-gray-50/80 text-gray-700 border-b border-gray-200">
+                <tr>
+                  <th className="py-3 px-4 font-bold text-center w-14">নং</th>
+                  <th className="py-3 px-4 font-bold">দাগ/দলিল নম্বর</th>
+                  <th className="py-3 px-4 font-bold">যাচাই ফলাফল</th>
+                  <th className="py-3 px-4 font-bold">অবস্থা</th>
+                  <th className="py-3 px-4 font-bold text-center">অ্যাকশন</th>
+                </tr>
+              </thead>
 
-        {/* Decision Result Display */}
-        {decisionResult && (
-          <div className="space-y-4">
-            <div
-              className={`card border-2 p-6 rounded-xl shadow-md ${
-                decisionResult.decision === 'BLOCKED_BY_VALID_ORDER'
-                  ? 'border-red-500 bg-red-50/80'
-                  : decisionResult.decision === 'CLEAR'
-                  ? 'border-green-500 bg-green-50/80'
-                  : decisionResult.decision === 'MORTGAGE_REQUIRES_RELEASE'
-                  ? 'border-orange-500 bg-orange-50/80'
-                  : 'border-yellow-500 bg-yellow-50/80'
-              }`}
-            >
-              {/* Header result */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-300">
-                <div>
-                  <span className="text-xs uppercase tracking-wider font-bold text-gray-600 block mb-1">
-                    গেটকিপার সিদ্ধান্ত ফলাফল
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <StatusBadge decision={decisionResult.decision} className="text-base px-4 py-1.5" />
-                    <span className="text-xs font-mono text-gray-500">
-                      ({decisionResult.decision})
-                    </span>
-                  </div>
-                </div>
+              {/* Table Body matching Screen 5 */}
+              <tbody className="divide-y divide-gray-100 text-gray-800">
+                {filteredRows.map((row) => (
+                  <tr key={row.sl} className="hover:bg-gray-50/80 transition-colors">
+                    {/* নং */}
+                    <td className="py-3.5 px-4 font-bold text-center text-gray-600 font-sans">
+                      {row.sl}
+                    </td>
 
-                <div className="text-right text-xs text-gray-600">
-                  <div className="font-mono">যাচাই আইডি: {decisionResult.checkId}</div>
-                  <div className="mt-0.5">
-                    যাচাই সম্পন্ন: {new Date(decisionResult.checkedAt).toLocaleString('bn-BD')}
-                  </div>
-                </div>
-              </div>
+                    {/* দাগ/দলিল নম্বর */}
+                    <td className="py-3.5 px-4 font-semibold text-gray-900 font-sans">
+                      {row.deedNo}
+                    </td>
 
-              {/* Summary text */}
-              <div className="mt-4 p-3 bg-white/90 rounded border border-gray-200 text-sm font-semibold text-gray-800">
-                {decisionResult.summary || 'কোনো সারাংশ প্রদান করা হয়নি।'}
-              </div>
+                    {/* যাচাই ফলাফল */}
+                    <td className="py-3.5 px-4">
+                      <span className="inline-flex items-center gap-1.5 font-bold">
+                        <span className={`w-2 h-2 rounded-full ${row.dotColor}`} />
+                        <span>{row.resultBn}</span>
+                      </span>
+                    </td>
 
-              {/* Reason Codes */}
-              {decisionResult.reasonCodes && decisionResult.reasonCodes.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-xs font-bold text-gray-700 uppercase mb-2">
-                    কারণ নির্দেশক কোডসমূহ (Reason Codes):
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {decisionResult.reasonCodes.map((code, idx) => (
-                      <li
-                        key={idx}
-                        className="text-xs flex items-start gap-2 bg-white/80 p-2.5 rounded border border-red-200 text-red-900"
+                    {/* অবস্থা (BLOCKED / MORTGAGE / CLEAR / PENDING) */}
+                    <td className="py-3.5 px-4">
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-mono font-bold border ${row.statusColor}`}
                       >
-                        <AlertOctagon size={14} className="shrink-0 text-red-600 mt-0.5" />
-                        <div>
-                          <strong>{REASON_CODES_BN[code] || code}</strong>
-                          <span className="font-mono text-gray-500 block text-[11px] mt-0.5">
-                            কোড: {code}
-                          </span>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                        {row.status}
+                      </span>
+                    </td>
+
+                    {/* অ্যাকশন: [ বিস্তারিত ] button */}
+                    <td className="py-3.5 px-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRecord(row)}
+                        className="inline-flex items-center gap-1 bg-[#006A4E] hover:bg-[#004D38] text-white text-xs font-bold px-3.5 py-1.5 rounded-md shadow-xs transition-colors"
+                      >
+                        <span>বিস্তারিত</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+
+                {filteredRows.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-gray-500 text-xs">
+                      প্রদত্ত ফিল্টারে কোনো তথ্য খুঁজে পাওয়া যায়নি।
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination matching Screen 5: < [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] > */}
+          <div className="p-4 border-t border-gray-100 flex items-center justify-end gap-1.5 select-none">
+            <button
+              type="button"
+              onClick={() => setActivePage(Math.max(1, activePage - 1))}
+              disabled={activePage === 1}
+              className="p-1.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <ChevronLeft size={16} />
+            </button>
+
+            {[1, 2, 3, 4, 5].map((page) => (
+              <button
+                key={page}
+                type="button"
+                onClick={() => setActivePage(page)}
+                className={`w-8 h-8 rounded text-xs font-bold transition-colors font-sans ${
+                  activePage === page
+                    ? 'bg-[#006A4E] text-white shadow-xs'
+                    : 'border border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+
+            <button
+              type="button"
+              onClick={() => setActivePage(Math.min(5, activePage + 1))}
+              disabled={activePage === 5}
+              className="p-1.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:pointer-events-none"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Decision Detail Modal on clicking 'বিস্তারিত' */}
+      {selectedRecord && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs font-bangla">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <ClipboardCheck size={20} className="text-[#006A4E]" />
+                <h3 className="font-bold text-base text-gray-900">
+                  রেজিস্ট্রি গেটকিপার যাচাই ফলাফল
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedRecord(null)}
+                className="p-1 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-gray-700">
+              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-gray-500 block">দাগ/দলিল নম্বর</span>
+                  <span className="font-bold text-gray-900 font-sans">{selectedRecord.deedNo}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block">তফসিল</span>
+                  <span className="font-bold text-gray-900">{selectedRecord.district}, {selectedRecord.upazila}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block">খতিয়ান ও দাগ</span>
+                  <span className="font-bold text-gray-900 font-sans">খতিয়ান: {selectedRecord.khatian}, দাগ: {selectedRecord.dag}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 block">গেটিং সিদ্ধান্ত</span>
+                  <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-mono font-bold ${selectedRecord.statusColor}`}>
+                    {selectedRecord.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-lg border space-y-1.5 bg-white border-gray-200">
+                <div className="font-bold text-gray-900">আইনি ও আর্থিক কারণ:</div>
+                <p className="text-gray-600 leading-relaxed">{selectedRecord.reason}</p>
+                <div className="text-[11px] text-gray-500 pt-1 border-t border-gray-100">
+                  উৎস রেফারেন্স: <span className="font-semibold text-gray-800">{selectedRecord.caseNo}</span> ({selectedRecord.court})
+                </div>
+              </div>
+
+              {selectedRecord.status === 'BLOCKED' && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 font-bold flex items-center gap-2">
+                  <ShieldAlert size={18} className="shrink-0 text-red-600" />
+                  <span>সাব-রেজিস্ট্রি অফিসারকে দলিল রেজিস্ট্রি করা থেকে বিরত থাকার নির্দেশ প্রদান করা হয়েছে।</span>
                 </div>
               )}
+            </div>
 
-              {/* Statistics & References */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs">
-                  <div className="font-bold text-sm text-gray-800 mb-2 flex items-center justify-between">
-                    <span>সক্রিয় আইনি বিধিনিষেধ:</span>
-                    <span className={`text-xs px-2 py-0.5 rounded font-bold ${
-                      decisionResult.activeRestrictionCount > 0 ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {decisionResult.activeRestrictionCount} টি পাওয়া গেছে
-                    </span>
-                  </div>
-                  {decisionResult.restrictionReferences && decisionResult.restrictionReferences.length > 0 ? (
-                    <ul className="text-xs font-mono text-gray-700 space-y-1">
-                      {decisionResult.restrictionReferences.map((ref, idx) => (
-                        <li key={idx} className="bg-gray-50 p-1.5 rounded border border-gray-200">
-                          {ref}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-xs text-gray-500 italic">কোনো নিষেধাজ্ঞা রেফারেন্স নেই</p>
-                  )}
-                </div>
-
-                <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-xs">
-                  <div className="font-bold text-sm text-gray-800 mb-2 flex items-center justify-between">
-                    <span>সক্রিয় ব্যাংক বন্ধক:</span>
-                    <span className={`text-xs px-2 py-0.5 rounded font-bold ${
-                      decisionResult.activeMortgageCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-800'
-                    }`}>
-                      {decisionResult.activeMortgageCount} টি পাওয়া গেছে
-                    </span>
-                  </div>
-                  {decisionResult.mortgageReferences && decisionResult.mortgageReferences.length > 0 ? (
-                    <ul className="text-xs font-mono text-gray-700 space-y-1">
-                      {decisionResult.mortgageReferences.map((ref, idx) => (
-                        <li key={idx} className="bg-gray-50 p-1.5 rounded border border-gray-200">
-                          {ref}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-xs text-gray-500 italic">কোনো বন্ধক রেফারেন্স নেই</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Disclaimer */}
-              <div className="mt-5 p-3.5 bg-yellow-50/90 border border-yellow-300 rounded text-xs text-yellow-900 leading-relaxed flex items-start gap-2">
-                <Info size={16} className="text-yellow-700 shrink-0 mt-0.5" />
-                <div>
-                  <strong>আইনি অস্বীকৃতি:</strong> {decisionResult.disclaimer}
-                </div>
-              </div>
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setSelectedRecord(null)}
+                className="px-5 py-2 bg-[#006A4E] text-white rounded-lg text-xs font-bold hover:bg-[#004D38]"
+              >
+                বন্ধ করুন
+              </button>
             </div>
           </div>
-        )}
-      </div>
-    </Layout>
+        </div>
+      )}
+    </DashboardLayout>
   )
 }

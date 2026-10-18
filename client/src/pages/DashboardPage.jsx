@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
-import { Search, FileText, ClipboardCheck, Shield, BarChart3, ArrowRight, CheckCircle, AlertTriangle, Building, MapPin, Map } from 'lucide-react'
+import { Search, FileText, ClipboardCheck, Shield, BarChart3, ArrowRight, CheckCircle, AlertTriangle, Building, MapPin, Map, Scale } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const ROLE_BN = {
@@ -91,6 +91,20 @@ export default function DashboardPage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <QuickAction
+              to="/map"
+              icon={Map}
+              title="মৌজা নকশা ও জিআইএস রেজিস্ট্রি"
+              desc="মানচিত্রে দাগ অনুযায়ী সরাসরি আদালতের নিষেধাজ্ঞা ও ব্যাংক লিয়েন পরীক্ষণ"
+              color="blue"
+            />
+            <QuickAction
+              to="/approvals"
+              icon={Scale}
+              title="বিচারিক আদেশ অনুমোদন"
+              desc="আদালতের খসড়া নিষেধাজ্ঞা ও স্থগিতাদেশ পর্যালোচনান্তে ডিজিটাল স্বাক্ষর"
+              color="yellow"
+            />
+            <QuickAction
               to="/parcels"
               icon={Search}
               title="জমি ও খতিয়ান অনুসন্ধান"
@@ -105,39 +119,40 @@ export default function DashboardPage() {
               color="blue"
             />
             <QuickAction
-              to="/map"
-              icon={Map}
-              title="মৌজা নকশা ও জিআইএস ম্যাপ"
-              desc="ডিজিটাল মৌজা ম্যাপে দাগভিত্তিক আদালতের নিষেধাজ্ঞা ও স্যাটেলাইট ভিউ"
+              to="/verify"
+              icon={Shield}
+              title="কিউআর সনদপত্র যাচাই"
+              desc="অফিসিয়াল কিউআর কোড স্ক্যান বা সার্টিফিকেট নম্বর দিয়ে সত্যতা নিশ্চিত করুন"
               color="green"
             />
-            {hasRole(['COURT_OFFICER', 'ORDER_APPROVER', 'SYSTEM_ADMIN', 'AUDITOR']) && (
-              <QuickAction
-                to="/cases"
-                icon={FileText}
-                title="মামলা ও নিষেধাজ্ঞার আদেশ"
-                desc="আদালতের দেওয়ানি মামলা, নিষেধাজ্ঞার আদেশ অনুমোদন ও পার্সেল লিঙ্কিং"
-                color="yellow"
-              />
-            )}
-            {hasRole(['REGISTRY_OFFICER', 'BANK_OFFICER', 'SYSTEM_ADMIN']) && (
-              <QuickAction
-                to="/registry"
-                icon={ClipboardCheck}
-                title="রেজিস্ট্রি গেটকিপার যাচাই"
-                desc="দলিল নিবন্ধন ও ব্যাংক লোন ছাড়ের পূর্বে নিষেধাজ্ঞা নির্ণয়ক ইঞ্জিন"
-                color="green"
-              />
-            )}
-            {hasRole(['AUDITOR', 'SYSTEM_ADMIN']) && (
-              <QuickAction
-                to="/audit"
-                icon={BarChart3}
-                title="সিস্টেম অডিট ট্রেইল"
-                desc="যাবতীয় প্রাতিষ্ঠানিক কার্যক্রম ও অনুমোদনের অপরিবর্তনীয় লগ পরীক্ষা"
-                color="purple"
-              />
-            )}
+            <QuickAction
+              to="/cases"
+              icon={FileText}
+              title="কোর্ট অর্ডার পোর্টাল"
+              desc="আদালতের দেওয়ানি মোকদ্দমা ও নিষেধাজ্ঞার নতুন আদেশ নিবন্ধন"
+              color="yellow"
+            />
+            <QuickAction
+              to="/registry"
+              icon={ClipboardCheck}
+              title="রেজিস্ট্রি গেটকিপার কনসোল"
+              desc="দলিল নিবন্ধনের পূর্বে আদালতের স্থগিতাদেশ ও লিয়েন যাচাই তালিকা"
+              color="green"
+            />
+            <QuickAction
+              to="/mortgages"
+              icon={Building}
+              title="ব্যাংক বন্ধক ও লিয়েন পোর্টাল"
+              desc="ব্যাংকের ঋণ জামানত হিসেবে জমি বন্ধক নিবন্ধন ও অবমুক্তি ব্যবস্থাপনা"
+              color="yellow"
+            />
+            <QuickAction
+              to="/audit"
+              icon={BarChart3}
+              title="সিস্টেম অডিট ট্রেইল ও লগ"
+              desc="যাবতীয় প্রাতিষ্ঠানিক কার্যক্রম ও অনুমোদনের অপরিবর্তনীয় লগ পরীক্ষা"
+              color="purple"
+            />
           </div>
         </div>
 

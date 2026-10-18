@@ -33,7 +33,25 @@ function getStorage(key, initialData) {
       localStorage.setItem(key, JSON.stringify(initialData))
       return JSON.parse(JSON.stringify(initialData))
     }
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    if (Array.isArray(initialData) && Array.isArray(parsed)) {
+      const initMap = new Map(initialData.map((d) => [d.id, d]))
+      return parsed.map((item) => {
+        const init = initMap.get(item.id)
+        if (!init) return item
+        return {
+          ...init,
+          ...item,
+          parcelId: item.parcelId || init.parcelId,
+          parcelIds: item.parcelIds?.length ? item.parcelIds : init.parcelIds,
+          approvalStatus:
+            item.id === 'e2000000-0000-0000-0000-000000000002' && item.approvalStatus === 'DRAFT'
+              ? 'SUBMITTED'
+              : item.approvalStatus || init.approvalStatus,
+        }
+      })
+    }
+    return parsed
   } catch (e) {
     console.warn(`[MockEngine] Error accessing localStorage for key ${key}:`, e)
     return JSON.parse(JSON.stringify(initialData))
@@ -55,7 +73,7 @@ function getCurrentUser() {
     const raw = localStorage.getItem(STORAGE_KEYS.USER)
     if (raw) return JSON.parse(raw)
   } catch {}
-  return DEMO_USERS_MAP.admin1
+  return null
 }
 
 // Add audit log helper
@@ -786,6 +804,21 @@ export const auditApi = {
       data: {
         success: true,
         data: filtered,
+      },
+    }
+  },
+}
+
+export const institutionApi = {
+  getAll: async () => {
+    return {
+      data: {
+        success: true,
+        data: [
+          { id: 'inst-01', name: 'ঢাকা জেলা জজ আদালত', type: 'COURT' },
+          { id: 'inst-02', name: 'সাভার সাব-রেজিস্ট্রি অফিস', type: 'REGISTRY' },
+          { id: 'inst-03', name: 'সোনালী ব্যাংক পিএলসি', type: 'BANK' },
+        ],
       },
     }
   },

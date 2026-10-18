@@ -6,7 +6,7 @@ export default {
       colors: {
         govt: {
           green: '#006A4E',
-          'green-dark': '#004D38',
+          'green-dark': '#004137',
           'green-light': '#008A64',
           red: '#F42A41',
           gold: '#FCD116',

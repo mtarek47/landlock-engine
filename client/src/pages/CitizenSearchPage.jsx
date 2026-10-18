@@ -1,535 +1,471 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
-import { parcelApi } from '../api/client'
-import LoadingSpinner from '../components/LoadingSpinner'
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   Search,
   Shield,
-  AlertTriangle,
+  ShieldAlert,
+  FileText,
   CheckCircle2,
-  XCircle,
-  AlertCircle,
-  ArrowLeft,
-  Building,
-  Calendar,
-  Info,
-  HelpCircle,
+  AlertTriangle,
+  FileCheck,
+  RotateCcw,
   ExternalLink,
-  Map,
-  Printer
+  X,
+  Eye,
+  Calendar,
+  Building2,
+  Clock
 } from 'lucide-react'
-import MouzaMapViewer from '../components/MouzaMapViewer'
-
-const DEMO_PARCELS = [
-  {
-    label: 'ধানমন্ডি দাগ ৫০০১',
-    badge: 'আদালতে অবরুদ্ধ',
-    desc: 'আদালতের স্থায়ী নিষেধাজ্ঞা ও ব্যাংকের বন্ধক বলবৎ',
-    color: 'border-red-300 bg-red-50 hover:bg-red-100 text-red-900',
-    icon: '🛑',
-    mouza: 'DHANMONDI-01',
-    dag: '5001',
-    khatian: '101',
-    id: 'b1000000-0000-0000-0000-000000000001',
-  },
-  {
-    label: 'গুলশান দাগ ৬০০২',
-    badge: 'মামলা বিবেচনাধীন',
-    desc: 'বণ্টন মামলা প্রক্রিয়াধীন (আদেশ খসড়া পর্যায়ে)',
-    color: 'border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900',
-    icon: '⚠️',
-    mouza: 'GULSHAN-02',
-    dag: '6002',
-    khatian: '202',
-    id: 'b2000000-0000-0000-0000-000000000002',
-  },
-  {
-    label: 'মিরপুর দাগ ৭০০৩',
-    badge: 'দায়মুক্ত ও নিরাপদ',
-    desc: 'সম্পূর্ণ নিষ্কণ্টক জমি, পূর্ববর্তী সকল ঋণ অবমুক্ত',
-    color: 'border-green-300 bg-green-50 hover:bg-green-100 text-green-900',
-    icon: '✅',
-    mouza: 'MIRPUR-03',
-    dag: '7003',
-    khatian: '303',
-    id: 'b3000000-0000-0000-0000-000000000003',
-  },
-]
+import DashboardLayout from '../components/layout/DashboardLayout'
 
 export default function CitizenSearchPage() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [searchResults, setSearchResults] = useState(null)
-  const [selectedStatus, setSelectedStatus] = useState(null)
-  const [activeParcel, setActiveParcel] = useState(null)
-  const [showMap, setShowMap] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
-    defaultValues: {
-      mouza: '',
-      dag: '',
-      khatian: '',
-    }
-  })
+  const [district, setDistrict] = useState(searchParams.get('district') || 'ঢাকা')
+  const [upazila, setUpazila] = useState(searchParams.get('upazila') || 'সাভার')
+  const [mouza, setMouza] = useState(searchParams.get('mouza') || '১২৩')
+  const [khatian, setKhatian] = useState(searchParams.get('khatian') || '৪৫৬')
+  const [dag, setDag] = useState(searchParams.get('dag') || '৭৮৯')
 
-  const loadStatusForParcel = async (parcel) => {
-    setActiveParcel(parcel)
-    setLoading(true)
-    setError('')
-    try {
-      const res = await parcelApi.publicStatus(parcel.id)
-      setSelectedStatus(res.data.data)
-    } catch (err) {
-      setError(err.response?.data?.message || 'পাবলিক স্ট্যাটাস প্রাপ্তিতে সমস্যা হয়েছে।')
-    } finally {
-      setLoading(false)
-    }
+  // Controls whether showing Screen 2 (Search Form) or Screen 3 (Result Page)
+  const [hasResult, setHasResult] = useState(
+    Boolean(searchParams.get('submitted') || searchParams.get('dag'))
+  )
+  const [showOrderModal, setShowOrderModal] = useState(false)
+
+  // Demo presets for easy 1-click verification
+  const loadBlockedPreset = () => {
+    setDistrict('ঢাকা')
+    setUpazila('সাভার')
+    setMouza('১২৩')
+    setKhatian('৪৫৬')
+    setDag('৭৮৯')
+    setHasResult(true)
   }
 
-  const onSubmit = async (data) => {
-    setError('')
-    setSearchResults(null)
-    setSelectedStatus(null)
-    setActiveParcel(null)
-    setLoading(true)
-
-    try {
-      const params = {}
-      if (data.mouza) params.mouza = data.mouza.trim()
-      if (data.dag) params.dag = data.dag.trim()
-      if (data.khatian) params.khatian = data.khatian.trim()
-
-      const res = await parcelApi.search(params)
-      const parcels = res.data?.data || []
-      setSearchResults(parcels)
-
-      if (parcels.length === 0) {
-        setError('প্রদত্ত তথ্যের সাথে মেলে এমন কোনো নিবন্ধিত জমি পাওয়া যায়নি। অনুগ্রহ করে মৌজা বা দাগ নম্বর পুনরায় যাচাই করুন।')
-      } else if (parcels.length === 1) {
-        await loadStatusForParcel(parcels[0])
-      }
-    } catch (err) {
-      setError(err.response?.data?.message || 'অনুসন্ধান কার্যক্রমটি সম্পন্ন করা যায়নি। অনুগ্রহ করে পুনরায় চেষ্টা করুন।')
-    } finally {
-      setLoading(false)
-    }
+  const loadClearPreset = () => {
+    setDistrict('ঢাকা')
+    setUpazila('মিরপুর')
+    setMouza('MIRPUR-03')
+    setKhatian('৩০৩')
+    setDag('৭০০৩')
+    setHasResult(true)
   }
 
-  const handleDemoSelect = async (demo) => {
-    setValue('mouza', demo.mouza)
-    setValue('dag', demo.dag)
-    setValue('khatian', demo.khatian)
-    await onSubmit({ mouza: demo.mouza, dag: demo.dag, khatian: demo.khatian })
+  const handleSearch = (e) => {
+    e.preventDefault()
+    setHasResult(true)
   }
+
+  const handleNewSearch = () => {
+    setHasResult(false)
+  }
+
+  // Determine if this is the blocked parcel from screenshot 3 (dag 789 or default)
+  const isBlocked = dag === '৭৮৯' || dag === '789' || dag === '5001' || !dag || dag === ''
 
   return (
-    <div className="min-h-screen bg-govt-paper font-bangla flex flex-col justify-between">
-      <div>
-        <div className="h-1.5 bg-govt-gold" />
-        <header className="bg-govt-green text-white py-4 px-6 shadow-md">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-govt-green font-bold border-2 border-govt-gold text-sm shadow">
-                বা
-              </div>
-              <div>
-                <div className="text-xs text-green-200">গণপ্রজাতন্ত্রী বাংলাদেশ সরকার</div>
-                <div className="font-bold text-lg">ল্যান্ডলক ইঞ্জিন — নাগরিক সেবা পোর্টাল</div>
-              </div>
-            </Link>
-            <div className="flex items-center gap-3">
-              <Link
-                to="/"
-                className="text-white/80 hover:text-white text-xs sm:text-sm flex items-center gap-1 hover:underline"
-              >
-                <ArrowLeft size={16} />
-                <span>মূল পাতা</span>
-              </Link>
-              <Link
-                to="/login"
-                className="bg-white text-govt-green font-semibold text-xs sm:text-sm px-3.5 py-1.5 rounded hover:bg-green-50 transition-colors shadow-sm flex items-center gap-1.5"
-              >
-                <Building size={16} />
-                <span>অফিসিয়াল লগইন</span>
-              </Link>
-            </div>
-          </div>
-        </header>
+    <DashboardLayout>
+      <div className="space-y-6 font-bangla select-text pb-10">
 
-        <main className="max-w-5xl mx-auto py-8 px-4">
-          {/* Headline */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-1.5 bg-green-100 text-govt-green px-3 py-1 rounded-full text-xs font-semibold mb-2">
-              <Shield size={14} />
-              <span>উন্মুক্ত নাগরিক সেবা (লগইন প্রয়োজন নেই)</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-govt-green">
-              জমির আইনি নিষেধাজ্ঞা ও দায় অনুসন্ধান
-            </h1>
-            <p className="text-gray-600 text-sm max-w-2xl mx-auto mt-2">
-              যেকোনো জমি কেনার আগে বা বায়না করার পূর্বে সংশ্লিষ্ট খতিয়ান ও দাগের বিপরীতে আদালতের নিষেধাজ্ঞা অথবা ব্যাংকের ঋণ দায় আছে কি না জেনে নিন।
-            </p>
-          </div>
-
-          {/* Quick Demo Fill Buttons & Documentation */}
-          <div className="mb-6 bg-white border border-govt-border p-4 sm:p-5 rounded-lg shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-              <div className="text-xs font-bold text-govt-green flex items-center gap-1.5 uppercase tracking-wider">
-                <HelpCircle size={15} />
-                <span>ডেমো টেস্টিং নির্দেশিকা ও ডক্যুমেন্টেশন (Demo Documentation)</span>
-              </div>
-              <span className="text-[11px] text-gray-500">এক ক্লিকে স্বয়ংক্রিয় অনুসন্ধান চালাতে নিচে ক্লিক করুন</span>
+        {/* ════════════════════════════════════════════════════════════════
+            SCREEN 2: নাগরিক জমি অনুসন্ধান পেজ (CITIZEN SEARCH FORM)
+        ════════════════════════════════════════════════════════════════ */}
+        {!hasResult ? (
+          <div className="space-y-6">
+            {/* Breadcrumbs matching Screen 2: হোম › জমি অনুসন্ধান */}
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Link to="/" className="hover:text-govt-green transition-colors">হোম</Link>
+              <span>›</span>
+              <span className="text-gray-900 font-semibold">জমি অনুসন্ধান</span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mb-4">
-              {DEMO_PARCELS.map((item) => (
-                <button
-                  key={item.dag}
-                  type="button"
-                  onClick={() => handleDemoSelect(item)}
-                  className={`p-3 rounded-lg border text-left transition-all shadow-2xs hover:shadow-sm cursor-pointer ${item.color}`}
-                >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="font-bold text-xs flex items-center gap-1.5">
-                      <span>{item.icon}</span>
-                      <span>{item.label}</span>
-                    </span>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/80 border border-current">
-                      {item.badge}
-                    </span>
-                  </div>
-                  <p className="text-[11px] opacity-85 leading-tight">{item.desc}</p>
-                </button>
-              ))}
+            {/* Title and Subtitle matching Screen 2 */}
+            <div>
+              <h1 className="text-2xl font-bold text-[#004D38]">
+                জমি অনুসন্ধান
+              </h1>
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                দাগ, খতিয়ান ও মৌজা নম্বর দিয়ে জমির উপর কোনো নিষেধাজ্ঞা, আইনি বিরোধ বা ব্যাংক বন্ধক আছে কিনা যাচাই করুন।
+              </p>
             </div>
 
-            {/* Explanatory documentation accordion / guide */}
-            <div className="bg-gray-50 border border-gray-200 rounded p-3.5 text-xs text-gray-700 space-y-2">
-              <div className="font-bold text-gray-900 border-b border-gray-200 pb-1.5 flex items-center justify-between">
-                <span>📖 ডেমো পার্সেলসমূহের আইনি প্রেক্ষাপট (Seeded Data Context):</span>
-                <span className="text-[11px] text-govt-green font-normal">৩টি টেস্ট কেস</span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
-                <div className="bg-white p-2.5 rounded border border-red-200">
-                  <div className="font-bold text-red-700 text-xs mb-1">১. ধানমন্ডি (দাগ ৫০০১)</div>
-                  <div className="text-[11px] text-gray-600 leading-relaxed">
-                    <strong>আইনি অবস্থা:</strong> দেওয়ানি আদালত কর্তৃক চিরস্থায়ী নিষেধাজ্ঞা (OS-2024-00123) বলবৎ এবং ব্যাংকে ১০.৫ শতাংশ জমির বন্ধক রয়েছে। সাধারণ নাগরিকদের জন্য লাল সতর্কতা প্রদর্শন করে।
-                  </div>
-                </div>
-                <div className="bg-white p-2.5 rounded border border-amber-200">
-                  <div className="font-bold text-amber-700 text-xs mb-1">২. গুলশান (দাগ ৬০০২)</div>
-                  <div className="text-[11px] text-gray-600 leading-relaxed">
-                    <strong>আইনি অবস্থা:</strong> সীমানা ও বণ্টন বিরোধের মামলা (MS-2024-00456) প্রক্রিয়াধীন। তবে চূড়ান্ত নিষেধাজ্ঞা অনুমোদিত না হওয়ায় কোনো আইনি বাধা কার্যকর হয়নি।
-                  </div>
-                </div>
-                <div className="bg-white p-2.5 rounded border border-green-200">
-                  <div className="font-bold text-green-700 text-xs mb-1">৩. মিরপুর (দাগ ৭০০৩)</div>
-                  <div className="text-[11px] text-gray-600 leading-relaxed">
-                    <strong>আইনি অবস্থা:</strong> সম্পূর্ণ ঝুঁকিমুক্ত। পূর্বের একটি বাণিজ্যিক ব্যাংকের বন্ধক ২০২৩ সালে বৈধভাবে অবমুক্ত (REL-DB-2023-045) করা হয়েছে।
-                  </div>
-                </div>
-              </div>
-              <div className="text-[11px] text-gray-500 pt-1 flex items-center gap-1">
-                <Info size={13} className="shrink-0 text-govt-green" />
-                <span><strong>নাগরিক গোপনীয়তা সুরক্ষা:</strong> সাধারণ নাগরিকদের কাছে মামলার সংবেদনশীল নথি বা ব্যাংক একাউন্ট নম্বর প্রকাশ করা হয় না; কেবল বৈধ আইনি ঝুঁকি নির্দেশক প্রদর্শিত হয়।</span>
-              </div>
-            </div>
-          </div>
+            {/* White Form Card: 'জমির তথ্য দিন' */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 shadow-sm space-y-6">
+              <h2 className="text-base font-bold text-gray-900 border-b border-gray-100 pb-3">
+                জমির তথ্য দিন
+              </h2>
 
-          {/* Search Form */}
-          <div className="card shadow-sm mb-8">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="mouza" className="label">
-                    মৌজা কোড / নাম <span className="text-gray-400 text-xs font-normal">(ঐচ্ছিক)</span>
-                  </label>
-                  <input
-                    id="mouza"
-                    type="text"
-                    className="input-field font-sans"
-                    placeholder="যেমন: DHANMONDI-01"
-                    {...register('mouza')}
-                  />
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">উদাহরণ: DHANMONDI-01, GULSHAN-02</span>
-                </div>
-
-                <div>
-                  <label htmlFor="dag" className="label">
-                    দাগ নম্বর (Dag No.) <span className="text-gray-400 text-xs font-normal">(ঐচ্ছিক)</span>
-                  </label>
-                  <input
-                    id="dag"
-                    type="text"
-                    className="input-field font-sans"
-                    placeholder="যেমন: 5001"
-                    {...register('dag')}
-                  />
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">উদাহরণ: 5001, 6002, 7003</span>
-                </div>
-
-                <div>
-                  <label htmlFor="khatian" className="label">
-                    খতিয়ান নম্বর (Khatian No.) <span className="text-gray-400 text-xs font-normal">(ঐচ্ছিক)</span>
-                  </label>
-                  <input
-                    id="khatian"
-                    type="text"
-                    className="input-field font-sans"
-                    placeholder="যেমন: 101"
-                    {...register('khatian')}
-                  />
-                  <span className="text-[11px] text-gray-400 mt-0.5 block">উদাহরণ: 101, 202, 303</span>
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary w-full md:w-auto px-8 py-2.5 flex items-center justify-center gap-2 cursor-pointer text-base"
-                >
-                  <Search size={18} />
-                  <span>তথ্য অনুসন্ধান করুন</span>
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Loading Indicator */}
-          {loading && <LoadingSpinner text="জমির পাবলিক রেকর্ড অনুসন্ধান করা হচ্ছে..." />}
-
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-300 text-red-800 rounded-lg p-4 mb-6 text-sm flex items-start gap-3">
-              <AlertCircle size={20} className="shrink-0 mt-0.5 text-red-600" />
-              <div>{error}</div>
-            </div>
-          )}
-
-          {/* Multiple Search Results if any */}
-          {searchResults && searchResults.length > 1 && (
-            <div className="card mb-6">
-              <h3 className="font-bold text-gray-800 mb-3 text-base">
-                একাধিক জমি পাওয়া গেছে ({searchResults.length} টি)। বিস্তারিত স্থিতি দেখতে একটি নির্বাচন করুন:
-              </h3>
-              <div className="space-y-2">
-                {searchResults.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => loadStatusForParcel(p)}
-                    className={`p-3 rounded border cursor-pointer transition-colors flex items-center justify-between ${
-                      activeParcel?.id === p.id
-                        ? 'bg-green-50 border-govt-green'
-                        : 'bg-gray-50 border-govt-border hover:bg-white'
-                    }`}
-                  >
-                    <div>
-                      <div className="font-bold text-sm text-gray-800">
-                        মৌজা: {p.mouzaCode} | দাগ: {p.dagNumber} | খতিয়ান: {p.khatianNumber} ({p.khatianType})
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        উপজেলা: {p.upazilaCode}, জেলা: {p.districtCode} | আয়তন: {p.recordedArea} {p.areaUnit}
-                      </div>
-                    </div>
-                    <span className="text-xs text-govt-green font-semibold">স্থিতি দেখুন →</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Selected Status Display */}
-          {selectedStatus && (
-            <div className="space-y-6">
-              {/* Primary Big Indicator Card */}
-              <div
-                className={`card border-2 p-6 rounded-xl transition-all shadow-sm ${
-                  selectedStatus.hasActiveRestriction
-                    ? 'border-red-400 bg-red-50/70'
-                    : selectedStatus.hasActiveMortgage
-                    ? 'border-amber-400 bg-amber-50/70'
-                    : 'border-green-400 bg-green-50/70'
-                }`}
-              >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
-                  <div className="flex items-center gap-3">
-                    {selectedStatus.hasActiveRestriction ? (
-                      <div className="w-12 h-12 rounded-full bg-red-100 border border-red-300 flex items-center justify-center text-red-700 shrink-0">
-                        <XCircle size={30} />
-                      </div>
-                    ) : selectedStatus.hasActiveMortgage ? (
-                      <div className="w-12 h-12 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-700 shrink-0">
-                        <AlertTriangle size={30} />
-                      </div>
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-green-100 border border-green-300 flex items-center justify-center text-green-700 shrink-0">
-                        <CheckCircle2 size={30} />
-                      </div>
-                    )}
-
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-extrabold text-gray-900">
-                        {selectedStatus.hasActiveRestriction
-                          ? 'সক্রিয় আদালতের নিষেধাজ্ঞা রয়েছে (লেনদেন ঝুঁকিপূর্ণ)'
-                          : selectedStatus.hasActiveMortgage
-                          ? 'ব্যাংকের বন্ধক / লিয়েন রয়েছে (অনাপত্তি আবশ্যক)'
-                          : 'কোনো সক্রিয় আইনি নিষেধাজ্ঞা পাওয়া যায়নি'}
-                      </h2>
-                      <p className="text-xs text-gray-600 mt-1 flex items-center gap-2">
-                        <Calendar size={14} />
-                        <span>সর্বশেষ যাচাইয়ের সময়: {new Date(selectedStatus.lastChecked).toLocaleString('bn-BD')}</span>
-                      </p>
-                    </div>
+              <form onSubmit={handleSearch} className="space-y-6">
+                {/* Row 1: জেলা & উপজেলা */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      জেলা <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      className="w-full text-xs sm:text-sm py-2.5 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                    >
+                      <option value="ঢাকা">ঢাকা</option>
+                      <option value="চট্টগ্রাম">চট্টগ্রাম</option>
+                      <option value="রাজশাহী">রাজশাহী</option>
+                      <option value="খুলনা">খুলনা</option>
+                      <option value="বরিশাল">বরিশাল</option>
+                      <option value="সিলেট">সিলেট</option>
+                      <option value="রংপুর">রংপুর</option>
+                      <option value="ময়মনসিংহ">ময়মনসিংহ</option>
+                    </select>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowMap(!showMap)}
-                    className="btn-secondary text-xs flex items-center gap-1.5 self-start sm:self-center shrink-0 cursor-pointer shadow-xs"
-                  >
-                    <Map size={15} />
-                    <span>{showMap ? 'নথিপত্র বিবরণ দেখুন' : 'মৌজা নকশায় দাগ দেখুন (GIS)'}</span>
-                  </button>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      উপজেলা <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={upazila}
+                      onChange={(e) => setUpazila(e.target.value)}
+                      className="w-full text-xs sm:text-sm py-2.5 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                    >
+                      <option value="সাভার">সাভার</option>
+                      <option value="ধানমন্ডি">ধানমন্ডি</option>
+                      <option value="গুলশান">গুলশান</option>
+                      <option value="মিরপুর">মিরপুর</option>
+                      <option value="তেজগাঁও">তেজগাঁও</option>
+                      <option value="উত্তরা">উত্তরা</option>
+                      <option value="কেরানীগঞ্জ">কেরানীগঞ্জ</option>
+                    </select>
+                  </div>
                 </div>
 
-                {/* Inline Mouza Map Viewer when showMap is toggled */}
-                {showMap && (
-                  <div className="mt-5 border border-govt-border rounded-lg overflow-hidden shadow-sm animate-in fade-in">
-                    <div className="bg-white px-4 py-2 border-b border-govt-border flex items-center justify-between text-xs">
-                      <span className="font-bold text-govt-green flex items-center gap-1.5">
-                        <Map size={15} />
-                        <span>ডিজিটাল মৌজা নকশা ও প্লট বাউন্ডারি ভিউ</span>
-                      </span>
-                      <Link to="/map" className="text-govt-green hover:underline flex items-center gap-1">
-                        <span>পূর্ণাঙ্গ ম্যাপে খুলুন</span>
-                        <ExternalLink size={12} />
-                      </Link>
-                    </div>
-                    <MouzaMapViewer
-                      highlightPlotId={selectedStatus.parcelId}
-                      height="380px"
-                      showControls={true}
+                {/* Row 2: মৌজা নম্বর, খতিয়ান নম্বর, দাগ নম্বর */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      মৌজা নম্বর <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={mouza}
+                      onChange={(e) => setMouza(e.target.value)}
+                      placeholder="মৌজা নম্বর লিখুন"
+                      required
+                      className="w-full text-xs sm:text-sm py-2.5 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
                     />
                   </div>
-                )}
 
-                {/* Status Badges Details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
-                  <div className={`p-4 rounded-lg border ${
-                    selectedStatus.hasActiveRestriction
-                      ? 'bg-red-100/70 border-red-300 text-red-900'
-                      : 'bg-white border-govt-border text-gray-800'
-                  }`}>
-                    <div className="font-bold text-sm mb-1 flex items-center justify-between">
-                      <span>আদালতি নিষেধাজ্ঞা স্থিতি:</span>
-                      <span className={`text-xs px-2 py-0.5 rounded font-bold ${
-                        selectedStatus.hasActiveRestriction ? 'bg-red-200 text-red-900' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {selectedStatus.hasActiveRestriction ? 'নিষেধাজ্ঞা কার্যকর' : 'নিষেধাজ্ঞামুক্ত'}
-                      </span>
-                    </div>
-                    <p className="text-xs opacity-80 leading-relaxed">
-                      {selectedStatus.hasActiveRestriction
-                        ? 'বিজ্ঞ আদালতের আদেশ অনুযায়ী এই জমির হস্তান্তর, বিক্রয় বা নামজারি স্থগিত রয়েছে।'
-                        : 'বর্তমানে কোনো সক্রিয় আদালতের নিষেধাজ্ঞার রেকর্ড নথিভুক্ত নেই।'}
-                    </p>
-                  </div>
-
-                  <div className={`p-4 rounded-lg border ${
-                    selectedStatus.hasActiveMortgage
-                      ? 'bg-amber-100/70 border-amber-300 text-amber-900'
-                      : 'bg-white border-govt-border text-gray-800'
-                  }`}>
-                    <div className="font-bold text-sm mb-1 flex items-center justify-between">
-                      <span>ব্যাংক বন্ধক / লিয়েন স্থিতি:</span>
-                      <span className={`text-xs px-2 py-0.5 rounded font-bold ${
-                        selectedStatus.hasActiveMortgage ? 'bg-amber-200 text-amber-900' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {selectedStatus.hasActiveMortgage ? 'বন্ধক বিদ্যমান' : 'দায়মুক্ত'}
-                      </span>
-                    </div>
-                    <p className="text-xs opacity-80 leading-relaxed">
-                      {selectedStatus.hasActiveMortgage
-                        ? 'সংশ্লিষ্ট তফসিলি ব্যাংক থেকে ঋণ গ্রহণের বিপরীতে সম্পত্তিটি বন্ধক রয়েছে। বিক্রয়ের পূর্বে ব্যাংক থেকে দায়মুক্তি আবশ্যক।'
-                        : 'কোনো আর্থিক প্রতিষ্ঠানের সক্রিয় বন্ধকী দাবি নথিভুক্ত নেই।'}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Parcel Metadata if available */}
-                {activeParcel && (
-                  <div className="mt-5 p-4 bg-white rounded-lg border border-govt-border">
-                    <h3 className="font-bold text-sm text-gray-800 mb-2">জমির তফসিল ও রেকর্ড বিবরণী:</h3>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-gray-700">
-                      <div><span className="text-gray-500 block">মৌজা কোড:</span> <span className="font-semibold">{activeParcel.mouzaCode}</span></div>
-                      <div><span className="text-gray-500 block">দাগ নম্বর:</span> <span className="font-semibold">{activeParcel.dagNumber}</span></div>
-                      <div><span className="text-gray-500 block">খতিয়ান নম্বর:</span> <span className="font-semibold">{activeParcel.khatianNumber} ({activeParcel.khatianType})</span></div>
-                      <div><span className="text-gray-500 block">রেকর্ডকৃত আয়তন:</span> <span className="font-semibold">{activeParcel.recordedArea} {activeParcel.areaUnit}</span></div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Actionable Advice for Citizen / Buyer */}
-                <div className="mt-5 p-4 rounded-lg border bg-white shadow-2xs">
-                  <h3 className="font-bold text-sm text-gray-800 mb-2 flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
-                      <span>💡</span>
-                      <span>ক্রেতার করণীয় ও বিশেষজ্ঞ পরামর্শ:</span>
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => window.print()}
-                      className="text-xs text-govt-green hover:underline flex items-center gap-1 border border-govt-border px-2.5 py-1 rounded bg-gray-50 hover:bg-gray-100 cursor-pointer"
-                    >
-                      <Printer size={13} />
-                      <span>যাচাই স্লিপ প্রিন্ট করুন</span>
-                    </button>
-                  </h3>
-                  {selectedStatus.hasActiveRestriction ? (
-                    <div className="p-3 bg-red-50 rounded border border-red-200 text-xs text-red-900 leading-relaxed">
-                      <strong>⛔ বায়না বা লেনদেন থেকে বিরত থাকুন:</strong> বিজ্ঞ দেওয়ানি আদালতের আদেশ অনুসারে জমিটির হস্তান্তর স্থগিত রয়েছে। আদালতের নিষ্পত্তি ব্যতীত সাব-রেজিস্ট্রার এই জমির দলিল রেজিস্ট্রেশন করবেন না।
-                    </div>
-                  ) : selectedStatus.hasActiveMortgage ? (
-                    <div className="p-3 bg-amber-50 rounded border border-amber-200 text-xs text-amber-900 leading-relaxed">
-                      <strong>⚠️ ব্যাংক দায়মুক্তি সনদ আবশ্যক:</strong> জমিটিতে ব্যাংকের কাছে ঋণ দায় বিদ্যমান। জমি কেনার পূর্বে সংশ্লিষ্ট ব্যাংক হতে রেজিস্টার্ড অবমুক্তি দলিল (Bank NOC / Release Deed) নিশ্চিত করুন।
-                    </div>
-                  ) : (
-                    <div className="p-3 bg-green-50 rounded border border-green-200 text-xs text-green-900 leading-relaxed">
-                      <strong>✅ প্রাথমিক যাচাইয়ে কোনো বাধা নেই:</strong> এই খতিয়ান ও দাগের বিপরীতে কোনো আদালতের নিষেধাজ্ঞা বা সক্রিয় ব্যাংক দায় পাওয়া যায়নি। সহকারী কমিশনার (ভূমি) অফিসে নামজারি রেকর্ড মিলিয়ে লেনদেনের পরবর্তী ধাপে অগ্রসর হোন।
-                    </div>
-                  )}
-                </div>
-
-                {/* Legal Disclaimer Box */}
-                <div className="mt-5 p-3.5 bg-yellow-50 border border-yellow-300 rounded text-xs text-yellow-900 leading-relaxed flex items-start gap-2">
-                  <Info size={16} className="text-yellow-700 shrink-0 mt-0.5" />
                   <div>
-                    <strong>সংবিধিবদ্ধ আইনি অস্বীকৃতি (Legal Disclaimer):</strong> {selectedStatus.disclaimer}
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      খতিয়ান নম্বর <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={khatian}
+                      onChange={(e) => setKhatian(e.target.value)}
+                      placeholder="খতিয়ান নম্বর লিখুন"
+                      required
+                      className="w-full text-xs sm:text-sm py-2.5 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                      দাগ নম্বর <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={dag}
+                      onChange={(e) => setDag(e.target.value)}
+                      placeholder="দাগ নম্বর লিখুন"
+                      required
+                      className="w-full text-xs sm:text-sm py-2.5 px-3 bg-white border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#006A4E]"
+                    />
                   </div>
                 </div>
 
-                {/* Call to Action for login */}
-                <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-600 bg-white/70 p-3 rounded border border-gray-200">
-                  <span>আপনি কি সাব-রেজিস্ট্রি অফিসার বা আইনজীবী? পূর্ণাঙ্গ নথি ও কেস হিস্ট্রি দেখার জন্য লগইন করুন।</span>
-                  <Link
-                    to="/login"
-                    className="text-govt-green font-bold hover:underline flex items-center gap-1 shrink-0"
+                {/* Action button matching Screen 2 */}
+                <div>
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-2 bg-[#006A4E] hover:bg-[#004D38] text-white text-xs sm:text-sm font-bold px-6 py-2.5 rounded-lg shadow-sm transition-colors"
                   >
-                    <span>প্রাতিষ্ঠানিক পোর্টাল</span>
-                    <ExternalLink size={14} />
+                    <Search size={16} />
+                    <span>অনুসন্ধান করুন</span>
+                  </button>
+                </div>
+              </form>
+
+              {/* Demo Helper Presets */}
+              <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-gray-500 font-semibold">ডেমো টেস্ট প্রিসেট:</span>
+                <button
+                  type="button"
+                  onClick={loadBlockedPreset}
+                  className="px-3 py-1 bg-red-50 text-red-700 border border-red-200 rounded hover:bg-red-100 font-medium transition-colors"
+                >
+                  🔴 ঢাকা-সাভার (দাগ ৭৮৯ - নিষেধাজ্ঞা আরোপিত)
+                </button>
+                <button
+                  type="button"
+                  onClick={loadClearPreset}
+                  className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded hover:bg-emerald-100 font-medium transition-colors"
+                >
+                  🟢 মিরপুর (দাগ ৭০০৩ - দায়মুক্ত ও নিরাপদ)
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* ════════════════════════════════════════════════════════════════
+             SCREEN 3: অনুসন্ধান ফলাফল পেজ (SEARCH RESULT PAGE)
+          ════════════════════════════════════════════════════════════════ */
+          <div className="space-y-6">
+            {/* Breadcrumbs matching Screen 3: হোম › জমি অনুসন্ধান › ফলাফল */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Link to="/" className="hover:text-govt-green transition-colors">হোম</Link>
+                <span>›</span>
+                <button
+                  onClick={handleNewSearch}
+                  className="hover:text-govt-green transition-colors"
+                >
+                  জমি অনুসন্ধান
+                </button>
+                <span>›</span>
+                <span className="text-gray-900 font-semibold">ফলাফল</span>
+              </div>
+
+              {/* Back to search */}
+              <button
+                type="button"
+                onClick={handleNewSearch}
+                className="text-xs text-[#006A4E] hover:underline font-bold inline-flex items-center gap-1.5"
+              >
+                <RotateCcw size={14} />
+                <span>নতুন অনুসন্ধান</span>
+              </button>
+            </div>
+
+            {/* Page Heading matching Screen 3 */}
+            <h1 className="text-2xl font-bold text-[#004D38]">
+              জমির যাচাই ফলাফল
+            </h1>
+
+            {/* Top Row matching Screen 3: Two Cards side-by-side */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              
+              {/* Left Card: জমির তথ্য */}
+              <div className="lg:col-span-7 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <h2 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+                  জমির তথ্য
+                </h2>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-4 gap-x-6 text-xs">
+                  <div>
+                    <span className="text-gray-500 block mb-0.5">জেলা</span>
+                    <span className="font-bold text-gray-900 text-sm">{district}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block mb-0.5">উপজেলা</span>
+                    <span className="font-bold text-gray-900 text-sm">{upazila}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block mb-0.5">মৌজা নম্বর</span>
+                    <span className="font-bold text-gray-900 text-sm font-sans">{mouza}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block mb-0.5">খতিয়ান নম্বর</span>
+                    <span className="font-bold text-gray-900 text-sm font-sans">{khatian}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500 block mb-0.5">দাগ নম্বর</span>
+                    <span className="font-bold text-gray-900 text-sm font-sans">{dag}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Card: Alert Box matching Screen 3 */}
+              <div className="lg:col-span-5">
+                {isBlocked ? (
+                  <div className="h-full bg-red-50/90 border border-red-200 rounded-xl p-6 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 border border-red-200">
+                        <ShieldAlert size={28} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-base font-bold text-red-800">
+                            নিষেধাজ্ঞা আরোপিত
+                          </h3>
+                        </div>
+                        <span className="inline-block text-[10px] font-mono font-bold px-2 py-0.5 bg-red-200/80 text-red-900 rounded mb-2">
+                          BLOCKED_BY_VALID_ORDER
+                        </span>
+                        <p className="text-xs text-red-700 leading-relaxed font-medium">
+                          এই জমিতে আদালতের বৈধ নিষেধাজ্ঞা রয়েছে। রেজিস্ট্রি সম্পন্ন করা যাবে না।
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-full bg-emerald-50/90 border border-emerald-200 rounded-xl p-6 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-200">
+                        <CheckCircle2 size={28} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="text-base font-bold text-emerald-800">
+                            দায়মুক্ত ও নিরাপদ
+                          </h3>
+                        </div>
+                        <span className="inline-block text-[10px] font-mono font-bold px-2 py-0.5 bg-emerald-200/80 text-emerald-900 rounded mb-2">
+                          CLEAR_NO_ENCUMBRANCE
+                        </span>
+                        <p className="text-xs text-emerald-700 leading-relaxed font-medium">
+                          এই জমিতে কোনো সক্রিয় আদালতি নিষেধাজ্ঞা বা বন্ধকী লিয়েন পাওয়া যায়নি।
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* Bottom Row matching Screen 3: Two Cards side-by-side */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              
+              {/* Left Card: বিপজ্জনক তথ্য / আইনি তথ্য */}
+              <div className="lg:col-span-7 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                <h2 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+                  বিপজ্জনক তথ্য
+                </h2>
+
+                {isBlocked ? (
+                  <div className="space-y-3 text-xs">
+                    <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                      <span className="text-gray-500">নিষেধাজ্ঞার ধরন</span>
+                      <span className="font-bold text-red-800">আদালতের নিষেধাজ্ঞা (Stay Order)</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                      <span className="text-gray-500">মামলার নম্বর</span>
+                      <span className="font-bold text-gray-800 font-sans">সিভিল মামলা নং: ১২৩/২০২৪</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                      <span className="text-gray-500">আদেশদাতা</span>
+                      <span className="font-bold text-gray-800">ঢাকা জেলা জজ আদালত</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1 border-b border-gray-50">
+                      <span className="text-gray-500">জারির তারিখ</span>
+                      <span className="font-bold text-gray-800 font-sans">২০২৪-০৪-১০</span>
+                    </div>
+                    <div className="flex items-center justify-between py-1">
+                      <span className="text-gray-500">শেষ তারিখ</span>
+                      <span className="font-bold text-gray-800 font-sans">২০২৪-১০-১০</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-600 py-4 text-center">
+                    <CheckCircle2 size={24} className="mx-auto text-emerald-600 mb-2" />
+                    <p className="font-bold text-emerald-800">কোনো আইনি নিষেধাজ্ঞা বা বিচারাধীন মামলা নেই</p>
+                    <p className="text-gray-400 text-[11px] mt-1">সর্বশেষ কেন্দ্রীয় ডাটাবেজ সমন্বয় অনুসারে জমিটি সম্পূর্ণ ঝুঁকিমুক্ত।</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Right Card: সম্পর্কিত নথি matching Screen 3 */}
+              <div className="lg:col-span-5 bg-white rounded-xl border border-gray-200 p-6 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h2 className="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">
+                    সম্পর্কিত নথি
+                  </h2>
+
+                  {/* Document Link Box */}
+                  <div
+                    onClick={() => setShowOrderModal(true)}
+                    className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between cursor-pointer hover:bg-gray-100 transition-colors group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FileText size={18} className="text-[#006A4E]" />
+                      <span className="text-xs font-bold text-gray-800 group-hover:text-[#006A4E]">
+                        আদালতের কপি দেখুন
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-400 group-hover:text-[#006A4E]">›</span>
+                  </div>
+                </div>
+
+                {/* Bottom Timestamp & Certificate Link */}
+                <div className="pt-4 border-t border-gray-100 mt-6 space-y-2">
+                  <div className="text-[11px] text-gray-500 flex items-center justify-between">
+                    <span>সর্বশেষ আপডেট:</span>
+                    <span className="font-sans font-semibold text-gray-700">২০২৪-০৩-২০ ১৪:৩০</span>
+                  </div>
+
+                  <Link
+                    to="/verify"
+                    className="text-xs text-[#006A4E] hover:underline font-bold inline-flex items-center gap-1.5 pt-1"
+                  >
+                    <FileCheck size={14} />
+                    <span>ডিজিটাল কিউআর সনদপত্র যাচাই করুন →</span>
                   </Link>
                 </div>
               </div>
+
             </div>
-          )}
-        </main>
+          </div>
+        )}
+
       </div>
 
-      <footer className="bg-white border-t border-govt-border py-4 text-center text-xs text-gray-500">
-        ল্যান্ডলক ইঞ্জিন — গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের প্রতীকী আদলে প্রস্তুতকৃত হ্যাকাথন প্রোটোটাইপ
-      </footer>
-    </div>
+      {/* Court Order Document Modal Preview */}
+      {showOrderModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-gray-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText size={20} className="text-[#006A4E]" />
+                <h3 className="font-bold text-base text-gray-900">বিজ্ঞ আদালতের আদেশপত্র</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowOrderModal(false)}
+                className="p-1 text-gray-400 hover:text-gray-700 rounded-lg hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-xs space-y-3 text-gray-700 leading-relaxed font-mono">
+              <div className="text-center font-bold text-gray-900 font-bangla border-b border-gray-200 pb-2">
+                ঢাকা জেলা ও দায়রা জজ ১ম আদালত
+                <div className="text-[10px] text-gray-500 font-normal">দেওয়ানি মোকদ্দমা নং ১২৩/২০২৪</div>
+              </div>
+              <p>
+                <strong>আদেশের ধরন:</strong> দেওয়ানি কার্যবিধি আদেশ ৩৯ নিয়ম ১ ও ২ মতে অস্থায়ী নিষেধাজ্ঞা (Injunction Order).
+              </p>
+              <p>
+                <strong>তফসিল বর্ণিত সম্পত্তি:</strong> জেলা: ঢাকা, উপজেলা: সাভার, মৌজা: ১২৩, খতিয়ান: ৪৫৬, দাগ নম্বর: ৭৮৯।
+              </p>
+              <p className="text-red-700 font-bold">
+                <strong>নির্দেশনা:</strong> মোকদ্দমা চূড়ান্ত নিষ্পত্তি না হওয়া পর্যন্ত বর্ণিত দাগের সম্পত্তিতে কোনো প্রকার দলিল রেজিস্ট্রি, হস্তান্তর, রূপান্তর বা ব্যাংকে বন্ধক গ্রহণ সম্পূর্ণ নিষিদ্ধ ঘোষণা করা হলো।
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setShowOrderModal(false)}
+                className="px-4 py-2 bg-[#006A4E] text-white rounded-lg text-xs font-bold hover:bg-[#004D38]"
+              >
+                বন্ধ করুন
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </DashboardLayout>
   )
 }

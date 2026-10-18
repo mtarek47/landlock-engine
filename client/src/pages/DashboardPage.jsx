@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
-import { Search, FileText, ClipboardCheck, Shield, BarChart3, ArrowRight, CheckCircle, AlertTriangle, Building, MapPin } from 'lucide-react'
+import { Search, FileText, ClipboardCheck, Shield, BarChart3, ArrowRight, CheckCircle, AlertTriangle, Building, MapPin, Map } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const ROLE_BN = {
@@ -103,6 +103,13 @@ export default function DashboardPage() {
               title="নাগরিক যাচাই পোর্টাল"
               desc="লগইন ব্যতীত যেকোনো নাগরিকের জন্য জমির ঝুঁকি ও নিষেধাজ্ঞা স্ট্যাটাস"
               color="blue"
+            />
+            <QuickAction
+              to="/map"
+              icon={Map}
+              title="মৌজা নকশা ও জিআইএস ম্যাপ"
+              desc="ডিজিটাল মৌজা ম্যাপে দাগভিত্তিক আদালতের নিষেধাজ্ঞা ও স্যাটেলাইট ভিউ"
+              color="green"
             />
             {hasRole(['COURT_OFFICER', 'ORDER_APPROVER', 'SYSTEM_ADMIN', 'AUDITOR']) && (
               <QuickAction

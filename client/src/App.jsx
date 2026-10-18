@@ -12,6 +12,7 @@ import CasesPage from './pages/CasesPage'
 import RegistryCheckPage from './pages/RegistryCheckPage'
 import AuditPage from './pages/AuditPage'
 import CitizenSearchPage from './pages/CitizenSearchPage'
+import MouzaMapPage from './pages/MouzaMapPage'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <ParcelDetailPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/map"
+              element={
+                <ProtectedRoute>
+                  <MouzaMapPage />
                 </ProtectedRoute>
               }
             />

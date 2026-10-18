@@ -17,8 +17,11 @@ import {
   Lock,
   Layers,
   Clock,
-  UserCheck
+  UserCheck,
+  Map,
+  ExternalLink
 } from 'lucide-react'
+import MouzaMapViewer from '../components/MouzaMapViewer'
 
 export default function ParcelDetailPage() {
   const { id } = useParams()
@@ -236,6 +239,34 @@ export default function ParcelDetailPage() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Cadastral Mouza Map View for this Parcel */}
+        <div className="card shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-govt-border mb-4 gap-2">
+            <div>
+              <h2 className="text-lg font-bold text-govt-green flex items-center gap-2">
+                <Map size={20} className="text-govt-gold" />
+                <span>মৌজা নকশা ও স্যাটেলাইট অবস্থান (Cadastral GIS Map)</span>
+              </h2>
+              <p className="text-xs text-gray-500 mt-0.5">
+                দাগ নম্বর {parcel.dagNumber} — ডিজিটাল জরিপ সীমানা ও সংলগ্ন পার্শ্ববর্তী প্লটের বর্তমান আইনি অবস্থা
+              </p>
+            </div>
+            <Link
+              to="/map"
+              className="btn-secondary text-xs flex items-center gap-1.5 self-start sm:self-auto"
+            >
+              <span>পূর্ণাঙ্গ মৌজা নকশা এক্সপ্লোরার</span>
+              <ExternalLink size={13} />
+            </Link>
+          </div>
+
+          <MouzaMapViewer
+            highlightPlotId={parcel.id}
+            height="400px"
+            showControls={true}
+          />
         </div>
 
         {/* Restrictions Section */}

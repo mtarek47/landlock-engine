@@ -1,10 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Home, Search, FileText, ClipboardCheck, Shield, BarChart3 } from 'lucide-react'
+import { Home, Search, FileText, ClipboardCheck, Shield, BarChart3, Map } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 
 const ALL_MENU = [
   { path: '/dashboard', label: 'ড্যাশবোর্ড', icon: Home, roles: null },
   { path: '/parcels', label: 'জমি খোঁজুন', icon: Search, roles: null },
+  { path: '/map', label: 'মৌজা নকশা (GIS)', icon: Map, roles: null },
   { path: '/cases', label: 'মামলা ও আদেশ', icon: FileText, roles: ['COURT_OFFICER', 'ORDER_APPROVER', 'SYSTEM_ADMIN', 'AUDITOR'] },
   { path: '/registry', label: 'রেজিস্ট্রি যাচাই', icon: ClipboardCheck, roles: ['REGISTRY_OFFICER', 'BANK_OFFICER', 'SYSTEM_ADMIN'] },
   { path: '/citizen', label: 'নাগরিক পোর্টাল', icon: Shield, roles: null },

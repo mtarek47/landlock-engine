@@ -15,8 +15,10 @@ import {
   Calendar,
   Info,
   HelpCircle,
-  ExternalLink
+  ExternalLink,
+  Map
 } from 'lucide-react'
+import MouzaMapViewer from '../components/MouzaMapViewer'
 
 const DEMO_PARCELS = [
   {
@@ -48,6 +50,7 @@ export default function CitizenSearchPage() {
   const [searchResults, setSearchResults] = useState(null)
   const [selectedStatus, setSelectedStatus] = useState(null)
   const [activeParcel, setActiveParcel] = useState(null)
+  const [showMap, setShowMap] = useState(false)
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     defaultValues: {
@@ -358,7 +361,37 @@ export default function CitizenSearchPage() {
                       </p>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowMap(!showMap)}
+                    className="btn-secondary text-xs flex items-center gap-1.5 self-start sm:self-center shrink-0 cursor-pointer shadow-xs"
+                  >
+                    <Map size={15} />
+                    <span>{showMap ? 'নথিপত্র বিবরণ দেখুন' : 'মৌজা নকশায় দাগ দেখুন (GIS)'}</span>
+                  </button>
                 </div>
+
+                {/* Inline Mouza Map Viewer when showMap is toggled */}
+                {showMap && (
+                  <div className="mt-5 border border-govt-border rounded-lg overflow-hidden shadow-sm animate-in fade-in">
+                    <div className="bg-white px-4 py-2 border-b border-govt-border flex items-center justify-between text-xs">
+                      <span className="font-bold text-govt-green flex items-center gap-1.5">
+                        <Map size={15} />
+                        <span>ডিজিটাল মৌজা নকশা ও প্লট বাউন্ডারি ভিউ</span>
+                      </span>
+                      <Link to="/map" className="text-govt-green hover:underline flex items-center gap-1">
+                        <span>পূর্ণাঙ্গ ম্যাপে খুলুন</span>
+                        <ExternalLink size={12} />
+                      </Link>
+                    </div>
+                    <MouzaMapViewer
+                      highlightPlotId={selectedStatus.parcelId}
+                      height="380px"
+                      showControls={true}
+                    />
+                  </div>
+                )}
 
                 {/* Status Badges Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
